@@ -1,0 +1,9 @@
+.build/gha.sh               $BINDIR/gha
+usage                       $TOOLSDIR/
+msg                         $TOOLSDIR/
+error                       $TOOLSDIR/
+customize                   $TOOLSDIR/
+be-quiet                    $TOOLSDIR/
+
+gha-findroot                $TOOLSDIR/
+gha-hack                    $TOOLSDIR/

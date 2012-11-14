@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# gha-hack -- run internal commands
+# Usage: gha hack COMMAND [ARG]...
+#
+# Author: Jaeho Shin <netj@cs.stanford.edu>
+# Created: 2012-05-10
+set -eu
+
+[ $# -gt 0 ] || set -- "$SHELL" -i
+
+exec "$@"
