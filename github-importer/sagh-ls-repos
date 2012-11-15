@@ -22,6 +22,6 @@ jquery $userurl '
 $(".repo-stats").each ->
     t = $(this)
     num = ((sel) -> t.find(sel).text().trim().replace(/,/g,""))
-    print [t.next("h3").find("a").attr("href").substring(1),
+    print [t.parent().find(".fork-flag, h3").last().find("a").attr("href").substring(1),
         num(".stargazers"), num(".forks")].join "\t"
 ' | sort -n -r -k3
