@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# sagh-init -- initialize the current directory as a sagh repository
+# Usage: sagh init
+#
+# Author: Jaeho Shin <netj@cs.stanford.edu>
+# Created: 2012-11-14
+set -eu
+
+if SAGH_ROOT=$(sagh-findroot 2>/dev/null); then
+    error "Already in a repository: $SAGH_ROOT"
+else
+    mkdir .sagh
+    touch repos.txt
+    # TODO do more stuff
+    msg "Initialized $PWD as a repository"
+fi
