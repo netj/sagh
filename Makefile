@@ -1,11 +1,11 @@
-# Makefile for GitHub analysis tools
+# Makefile for Social Aspects of GitHub
 
 export BINDIR         := bin
 export TOOLSDIR       := tools
 export DATADIR        := data
 
-PACKAGENAME := gha
-PACKAGEEXECUTES := bin/gha
+PACKAGENAME := sagh
+PACKAGEEXECUTES := bin/sagh
 
 STAGEDIR := @prefix@
 include buildkit/modules.mk

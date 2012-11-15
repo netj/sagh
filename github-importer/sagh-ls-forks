@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# gha-ls-forks -- list forks of a github repo
-# Usage:   gha ls-forks GITHUB_REPO
-# Example: gha ls-forks mbostock/d3
+# sagh-ls-forks -- list forks of a github repo
+# Usage:   sagh ls-forks GITHUB_REPO
+# Example: sagh ls-forks mbostock/d3
 #
 # Author: Jaeho Shin <netj@cs.stanford.edu>
 # Created: 2012-11-14

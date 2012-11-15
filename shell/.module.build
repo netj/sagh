@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -eu
 
-./customize .build/ gha.sh <<PARAMS
+./customize .build/ sagh.sh <<PARAMS
 @BINDIR@=$BINDIR
 @TOOLSDIR@=$TOOLSDIR
 @DATADIR@=$DATADIR
 PARAMS
-chmod +x .build/gha.sh
+chmod +x .build/sagh.sh
 

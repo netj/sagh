@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# gha-findroot -- find the root of the current github analysis repository
-# Usage: gha findroot
+# sagh-findroot -- find the root of the current GitHub analysis repository
+# Usage: sagh findroot
 #
 # Author: Jaeho Shin <netj@cs.stanford.edu>
-# Created: 2012-11-01
+# Created: 2012-11-14
 set -eu
 
 OPWD=$PWD
 
-is-root() { [ -d .gha ]; }
+is-root() { [ -d .sagh ]; }
 
 while ! is-root && [ "$PWD" != / ]; do
     cd ..

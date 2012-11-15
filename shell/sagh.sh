@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# gha -- GitHub Analysis Tools Command-Line Interface
-# Usage: gha [-OPTION] COMMAND [ARG]...
+# sagh -- Social Aspects of GitHub Command-Line Interface
+# Usage: sagh [-OPTION] COMMAND [ARG]...
 # 
 # COMMAND is one of the following forms:
 # 
-#   gha init
+#   sagh init
 # 
 # 
 # Global OPTION is one of:
@@ -15,7 +15,7 @@
 # Created: 2012-11-14
 set -eu
 
-if [ -z "${GHA_HOME:-}" ]; then
+if [ -z "${SAGH_HOME:-}" ]; then
     Self=$(readlink -f "$0" 2>/dev/null || {
         # XXX readlink -f is only available in GNU coreutils
         cd $(dirname -- "$0")
@@ -34,21 +34,21 @@ if [ -z "${GHA_HOME:-}" ]; then
     Here=$(dirname "$Self")
 
     # Setup environment
-    export GHA_HOME=${Here%/@BINDIR@}
-    export BINDIR="$GHA_HOME/@BINDIR@"
-    export TOOLSDIR="$GHA_HOME/@TOOLSDIR@"
-    export DATADIR="$GHA_HOME/@DATADIR@"
+    export SAGH_HOME=${Here%/@BINDIR@}
+    export BINDIR="$SAGH_HOME/@BINDIR@"
+    export TOOLSDIR="$SAGH_HOME/@TOOLSDIR@"
+    export DATADIR="$SAGH_HOME/@DATADIR@"
 
     export PATH="$TOOLSDIR:$PATH"
     unset CDPATH
-    export SHLVL=0 GHA_LOGLVL=${GHA_LOGLVL:-1}
+    export SHLVL=0 SAGH_LOGLVL=${SAGH_LOGLVL:-1}
 fi
 
 
 while getopts "v" opt; do
     case $opt in
         v)
-            let GHA_LOGLVL++
+            let SAGH_LOGLVL++
             ;;
             # TODO quiet
     esac
@@ -62,7 +62,7 @@ Cmd=$1; shift
 
 
 # Check if it's a valid command
-exe=gha-"$Cmd"
+exe=sagh-"$Cmd"
 if type "$exe" &>/dev/null; then
     set -- "$exe" "$@"
 else
