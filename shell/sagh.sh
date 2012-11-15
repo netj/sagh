@@ -6,6 +6,11 @@
 # 
 #   sagh init
 # 
+#   sagh sync-repos
+# 
+#   sagh ls-forks REPO
+# 
+#   sagh hack for-each-repo sh -c 'pwd; cd git; git log --format=%ae | wc -l'
 # 
 # Global OPTION is one of:
 #   -v      for increasing verbosity
