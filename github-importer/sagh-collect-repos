@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# sagh-collect-repos -- collect a list of repos by starting a crawl from a
+#                       given set of users over the repos, and users who forked
+# Usage: sagh collect-repos NUMHOPS [USER|REPO]...
+#
+# Author: Jaeho Shin <netj@cs.stanford.edu>
+# Created: 2012-11-15
+set -eu
+
+: ${SAGH_ROOT:=$(sagh-findroot)}
+: ${GITHUB_MINFORKS:=300}
+
+[ $# -gt 0 ] || usage "$0" "NUMHOPS missing"
+[ $# -gt 1 ] || usage "$0" "At least one seed USER or REPO should be given"
+
+numHops=$1; shift
+
+cd "$SAGH_ROOT"
+
+tmp=$(mktemp -d /tmp/sagh-collect-repos.XXXXXX)
+
+ls-fork-users() { sagh-ls-forks "$@" | sed 's:/.*$::'; }
+
+# initialize the set of seed users
+for a in "$@"; do
+    case $a in
+        */*) # repo
+            ls-fork-users $a
+            ;;
+        *) # user
+            echo $a
+            ;;
+    esac
+done >$tmp/moreusers
+
+touch $tmp/seenusers
+grep -v '^$' repos.txt | sort -u >$tmp/seenrepos
+
+replace-with-new() {
+    for f in $tmp/*.new; do
+        mv -f $f ${f%.new}
+    done
+}
+filter-seen() {
+    local things=$1
+    comm -13 $tmp/seen$things $tmp/more$things >$tmp/more$things.new
+    cat $tmp/seen$things $tmp/more$things.new | sort -u >$tmp/seen$things.new
+    replace-with-new
+}
+
+for i in $(seq $numHops); do
+    # find their repos with high forks, and
+    for user in $(cat $tmp/moreusers); do
+        echo >&2 "looking for repos of $user"
+        sagh-ls-repos $user |
+        awk '{if ($3 > '$GITHUB_MINFORKS') print $1}'
+    done | sort -u >$tmp/morerepos
+    filter-seen repos
+    cat $tmp/morerepos
+    [[ $i < $numHops ]] || continue # skip fetching users at the last hop
+    # find more users from their forks
+    for repo in $(cat $tmp/morerepos); do
+        echo >&2 "looking for users who forked $repo"
+        ls-fork-users $repo
+    done | sort -u >$tmp/moreusers
+    filter-seen users
+done
+
+echo $tmp
