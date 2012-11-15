@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# gha-ls-forks -- list forks of a github repo
+# Usage:   gha ls-forks GITHUB_REPO
+# Example: gha ls-forks mbostock/d3
+#
+# Author: Jaeho Shin <netj@cs.stanford.edu>
+# Created: 2012-11-14
+set -eu
+
+[ $# -gt 0 ] || usage "$0" "GITHUB_REPO missing"
+
+repo=$1; shift
+
+# normalize $repo
+repo=${repo#http://}
+repo=${repo#https://}
+repo=${repo#github.com/}
+repourl=https://github.com/$repo
+
+# ask github for the list of forks, and process it
+jquery "$repourl"/network/members '
+network = $("#network")
+forks = $(".repo", network)
+for a in forks.find("a:nth(1)").toArray()
+    print $(a).attr("href").substring(1)
+'

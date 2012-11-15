@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# jquery -- run jquery on a given URL
+# Usage:   jquery URL COFFEESCRIPT
+# Usage:   jquery http://nytimes.com '$(".story h2").each -> $(this).text()'
+#
+# Author: Jaeho Shin <netj@cs.stanford.edu>
+# Created: 2012-11-14
+set -eu
+
+[ $# -eq 2 ] || usage "$0" "Both URL and COFFEESCRIPT required"
+
+url=$1; shift
+query=$1; shift
+
+curl -sL "$url" |
+coffee -e '
+html = require("fs").readFileSync("/dev/stdin").toString()
+jsdom = require "jsdom"
+document = jsdom.jsdom(html)
+window = document.createWindow()
+$ = require("jquery").create(window)
+print = console.log
+
+'"$query"'
+
+process.exit 0
+'
