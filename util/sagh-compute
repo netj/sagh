@@ -22,7 +22,7 @@ else
     for-each-repo sh -c '
     cmd=$1; shift
     localProperty=$1; shift
-    msg -2 "Computing contributors.txt for $GITHUB_REPO"
+    msg -2 "Computing $localProperty.txt for $GITHUB_REPO"
     "$cmd" "$@" >"$localProperty.txt"
     ' -- "$cmd" "$localProperty" "$@"
 fi

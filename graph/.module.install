@@ -1,4 +1,6 @@
-#DP-graphCreate.py     		$TOOLSDIR/
+DF-graphCreate.py     		$TOOLSDIR/
+compute-common-files  		$TOOLSDIR/
+
 compute-contributors            $TOOLSDIR/
 
 sagh.py                         $TOOLSDIR/
