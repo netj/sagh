@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# sagh-sync-repos -- clone repos from GitHub or update them
+# Usage:   sagh sync-repos
+#
+# Author: Jaeho Shin <netj@cs.stanford.edu>
+# Created: 2012-11-14
+set -eu
+
+for-each-repo sh -c '
+    msg -2 "Syncing $GITHUB_REPO"
+    [ -d git ] || git clone --bare "https://github.com/$GITHUB_REPO.git" git
+    cd git
+    git remote update
+    '

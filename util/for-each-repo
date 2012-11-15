@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# for-each-repo -- run given command inside each repo
+# Usage:   for-each-repo COMMAND [ARG]...
+#
+# Author: Jaeho Shin <netj@cs.stanford.edu>
+# Created: 2012-11-14
+set -eu
+
+[ $# -gt 0 ] || usage "$0" "COMMAND missing"
+
+: ${SAGH_ROOT:=$(sagh-findroot)}
+
+for repo in $(cat repos.txt); do
+    (
+    mkdir -p "github/$repo"
+    cd "github/$repo"
+    GITHUB_REPO=$repo \
+        "$@"
+    )
+done
