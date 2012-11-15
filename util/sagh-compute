@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# sagh-compute -- compute a property for each GitHub repo
+# Usage: sagh compute LOCAL_PROPERTY [ARG]...
+#
+# Author: Jaeho Shin <netj@cs.stanford.edu>
+# Created: 2012-11-14
+set -eu
+
+[ $# -gt 0 ] || usage "$0" "LOCAL_PROPERTY missing"
+
+: ${SAGH_ROOT:=$(sagh-findroot)}
+
+localProperty=$1; shift
+
+cd "$SAGH_ROOT"
+
+cmd="compute-$localProperty"
+
+if ! type "$cmd" &>/dev/null; then
+    error "$localProperty: Undefined local property"
+else
+    for-each-repo sh -c '
+    cmd=$1; shift
+    localProperty=$1; shift
+    msg -2 "Computing contributors.txt for $GITHUB_REPO"
+    "$cmd" "$@" >"$localProperty.txt"
+    ' -- "$cmd" "$localProperty" "$@"
+fi

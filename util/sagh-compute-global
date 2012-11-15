@@ -14,7 +14,7 @@ globalProperty=$1; shift
 
 cd "$SAGH_ROOT"
 
-cmd="compute-global-$globalProperty.py"
+cmd="compute-global-$globalProperty"
 
 if ! type "$cmd" &>/dev/null; then
     error "$globalProperty: Undefined global property"

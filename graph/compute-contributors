@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# compute-contributors -- compute the contributors from git log
+# Usage: sagh compute contributors
+#
+# Author: Jaeho Shin <netj@cs.stanford.edu>
+# Created: 2012-11-14
+set -eu
+
+export LC_ALL=C
+
+cd git
+git log --format=%ae |
+awk '
+        {hist[tolower($0)]++}
+    END {for(i in hist){print i "\t" hist[i]}}
+'

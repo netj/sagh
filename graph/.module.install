@@ -1,4 +1,4 @@
-DP-graphCreate.py     		$TOOLSDIR/
-sagh-construct-graph-DP         $TOOLSDIR/
+#DP-graphCreate.py     		$TOOLSDIR/
+compute-contributors            $TOOLSDIR/
 
 sagh.py                         $TOOLSDIR/

@@ -9,11 +9,11 @@ g = nx.Graph()
 def loadSubgraph(repo):
     g.add_node(repo, type="project")
     totalWeight = 0
-    for line in file(sagh.fileFor("memberDevelopers.txt")):
+    for line in file(sagh.fileFor("contributors.txt")):
         columns = re.split("\t", line)
         weight = float(columns[1])
         totalWeight += weight
-    for line in file(sagh.fileFor("memberDevelopers.txt")):
+    for line in file(sagh.fileFor("contributors.txt")):
         columns = re.split("\t", line)
         email = columns[0]
         weight = float(columns[1]) / totalWeight
