@@ -1,2 +1,5 @@
 sagh-ls-forks           $TOOLSDIR/
+sagh-ls-repos           $TOOLSDIR/
 sagh-sync-repos         $TOOLSDIR/
+
+githubapi               $TOOLSDIR/
