@@ -9,8 +9,16 @@ def for_each_repo(job, **args):
         repo = repoline.strip()
         if len(repo) > 0 and os.path.exists("github/%s" % repo):
             currentRepo = repo
-            job(repo, **args)
+            try:
+                job(repo, **args)
+            except:
+                True
 
 def fileFor(attrName):
-    return "github/%s/%s" % (currentRepo, attrName)
+    global currentRepo
+    filename = "github/%s/%s" % (currentRepo, attrName)
+    if os.path.exists(filename):
+        return filename
+    else:
+        raise Exception("%s: Not found" % filename)
 
