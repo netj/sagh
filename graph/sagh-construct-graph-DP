@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# sagh-sync-repos -- clone repos from GitHub or update them
+# Usage:   sagh sync-repos
+#
+# Author: Jaeho Shin <netj@cs.stanford.edu>
+# Created: 2012-11-14
+set -eu
+
+for-each-repo sh -c '
+    msg -2 "Syncing $GITHUB_REPO"
+    # create memberDevelopers.txt
+    cd git
+    git log | DP-graphCreate.py >../memberDevelopers.txt
+    '
