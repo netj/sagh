@@ -1,3 +1,4 @@
 jquery                  $TOOLSDIR/
 for-each-repo           $TOOLSDIR/
 sagh-init               $TOOLSDIR/
+sagh-compute-global     $TOOLSDIR/
