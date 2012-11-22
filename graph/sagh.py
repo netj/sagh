@@ -7,7 +7,7 @@ def for_each_repo(job, **args):
     global currentRepo
     for repoline in file("repos.txt"):
         repo = repoline.strip()
-        if len(repo) > 0 and os.path.exists("github/%s" % repo):
+        if len(repo) > 0 and os.path.exists("computed/%s" % repo):
             currentRepo = repo
             try:
                 job(repo, **args)
@@ -16,7 +16,7 @@ def for_each_repo(job, **args):
 
 def fileFor(attrName):
     global currentRepo
-    filename = "github/%s/%s" % (currentRepo, attrName)
+    filename = "computed/%s/%s" % (currentRepo, attrName)
     if os.path.exists(filename):
         return filename
     else:

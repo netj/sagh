@@ -9,11 +9,12 @@ set -eu
 [ $# -gt 0 ] || usage "$0" "COMMAND missing"
 
 : ${SAGH_ROOT:=$(sagh-findroot)}
+export SAGH_ROOT
 
 for repo in $(cat repos.txt); do
     (
-    mkdir -p "github/$repo"
-    cd "github/$repo"
+    mkdir -p "computed/$repo"
+    cd "computed/$repo"
     GITHUB_REPO=$repo \
         "$@"
     )
