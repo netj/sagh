@@ -8,6 +8,7 @@ import networkx as nx
 from collections import defaultdict
 import pickle
 import sys
+import re
 
 DFbipartite = nx.Graph()
 flag = False
@@ -35,10 +36,12 @@ for line in sys.stdin:
     if 'Author:' in line:
         flag = True
         author_id = line[len('Author: '):].strip()
+        author_id = re.sub(r'\s+', '', author_id)
         
         #print
         #print author_id, author_name
         DFbipartite.add_node(author_id, type='Developer')
+        print >>sys.stderr, author_id
     
 pickle.dump(DFbipartite, open('user-file-graph', 'w'))
 

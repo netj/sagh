@@ -6,6 +6,7 @@ Output: Pickled Dictionary containing Similarity between P-P and D-D
 from collections import defaultdict
 import pickle
 import sys
+import math
 
 #if len(sys.argv) != 2:
 #    print 'usage : DF-graphCreate.py <path_to_DFgraph> \n'
@@ -42,6 +43,8 @@ print >>sys.stderr, "#Developers=%d, #Files=%d" % (len(lDevelopers), len(lFiles)
 hasConverged = False
 convergedAfterIteration = -1
 
+epsilon = 1e-6
+
 for iteration in range(T):
     print >>sys.stderr, iteration, 'beginning iteration'
     
@@ -60,11 +63,17 @@ for iteration in range(T):
                     total += score[(f1,f2)]
             
             newScore = float(c*total)/float(count1*count2)
-            if (score[(lDevelopers[i],lDevelopers[j])]!=newScore):
+
+            if (math.fabs(score[(lDevelopers[i],lDevelopers[j])] - newScore) > epsilon):
                 score[(lDevelopers[i],lDevelopers[j])]=newScore
                 flag=False
                 
+    def printScores(ns):
+        for i in range(len(ns)):
+            for j in range(i+1, len(ns)):
+               print >>sys.stderr, "%s\t%s\t%f" % (ns[i],ns[j], score[(ns[i],ns[j])] + score[(ns[j],ns[i])])
     print >>sys.stderr, iteration, 'after computing Developers'
+    printScores(["TimBurks", "JoshuaBronson", "JeffBuck"])
     
     for i in range(len(lFiles)):
         for j in range(i+1,len(lFiles)):
@@ -80,7 +89,8 @@ for iteration in range(T):
                     total += score[(d1,d2)]
             
             newScore = float(c*total)/float(count1*count2)
-            if (score[(lFiles[i],lFiles[j])]!=newScore):
+
+            if (math.fabs(score[(lFiles[i],lFiles[j])] - newScore) > epsilon):
                 score[(lFiles[i],lFiles[j])]=newScore
                 flag=False
 
