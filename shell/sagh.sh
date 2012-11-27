@@ -46,7 +46,7 @@ if [ -z "${SAGH_HOME:-}" ]; then
     export DATADIR="$SAGH_HOME/@DATADIR@"
 
     export PATH="$TOOLSDIR:$PATH"
-    export PYTHONPATH="$TOOLSDIR:$PATH"
+    export PYTHONPATH="$TOOLSDIR:$PYTHONPATH"
     unset CDPATH
     export SHLVL=0 SAGH_LOGLVL=${SAGH_LOGLVL:-1}
 fi

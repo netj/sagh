@@ -8,7 +8,6 @@ set -eu
 
 export LC_ALL=C
 
-cd git
 git log --format=%ae |
 awk '
         {hist[tolower($0)]++}

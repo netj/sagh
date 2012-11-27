@@ -8,11 +8,10 @@ set -eu
 
 for-each-repo sh -c '
     msg -2 "Syncing $GITHUB_REPO"
-    gitdir="$SAGH_ROOT/github/$GITHUB_REPO/git"
-    ln -sfn "$gitdir" git
+    ln -sfn "$GIT_DIR" git
     if ! [ -s git/HEAD -o -s git/.git/HEAD ]; then
-        mkdir -p "$(dirname "$gitdir")"
-        git clone --bare "https://github.com/$GITHUB_REPO.git" "$gitdir"
+        mkdir -p "$(dirname "$GIT_DIR")"
+        git clone --bare "https://github.com/$GITHUB_REPO.git" "$GIT_DIR"
     fi
     cd git
     git remote update

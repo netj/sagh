@@ -8,6 +8,5 @@ set -eu
 
 export LC_ALL=C
 
-cd git
 git log --format="Author: %ae" --stat |
 python "$TOOLSDIR"/DF-graphCreate.py

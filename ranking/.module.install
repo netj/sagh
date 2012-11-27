@@ -1,0 +1,2 @@
+simRank.py              $TOOLSDIR/compute-global-simrank
+weightedSimRank.py      $TOOLSDIR/compute-global-simrank-weighted

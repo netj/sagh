@@ -15,6 +15,7 @@ for repo in $(cat repos.txt); do
     (
     mkdir -p "computed/$repo"
     cd "computed/$repo"
+    GIT_DIR="$SAGH_ROOT/github/$repo/git" \
     GITHUB_REPO=$repo \
         "$@"
     )

@@ -3,4 +3,6 @@ compute-common-files  		$TOOLSDIR/
 
 compute-contributors            $TOOLSDIR/
 
+compute-global-user-file-graph  $TOOLSDIR/
+
 sagh.py                         $TOOLSDIR/

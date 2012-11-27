@@ -40,7 +40,7 @@ for line in sys.stdin:
         #print author_id, author_name
         DFbipartite.add_node(author_id, type='Developer')
     
-pickle.dump(DFbipartite, open('DF-graph.txt', 'w'))
+pickle.dump(DFbipartite, open('user-file-graph', 'w'))
 
 graph = DFbipartite
 score = defaultdict(int)
