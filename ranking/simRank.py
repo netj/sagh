@@ -109,10 +109,16 @@ for iteration in range(T):
     
 if hasConverged:
     print >>sys.stderr, 'Converged in ', convergedAfterIteration, 'iterations\n'
-pickle.dump(score, open('simrank.pickled', 'w'))
 
+# store the compact version of simrank scores (of developers only)
+scoreCompact = {}
+for i in range(len(lDevelopers)):
+    for j in range(i+1, len(lDevelopers)):
+        scoreCompact[(i,j)] = score[(lDevelopers[i],lDevelopers[j])]
+pickle.dump(scoreCompact, open('simrank.pickled', 'w'))
 
 # output in textual form
 for i in range(len(lDevelopers)):
     for j in range(i+1, len(lDevelopers)):
         print lDevelopers[i], lDevelopers[j], score[(lDevelopers[i],lDevelopers[j])]
+
