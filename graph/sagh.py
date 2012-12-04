@@ -8,7 +8,7 @@ def for_each_repo(job, **args):
     for repoline in file("repos.txt"):
         repo = repoline.strip()
         #print >>sys.stderr, repo
-        if len(repo) > 0 and os.path.exists("computed/%s" % repo):
+        if len(repo) > 0 and os.path.exists("%s" % repo):
             currentRepo = repo
             try:
                 job(repo, **args)
@@ -17,7 +17,7 @@ def for_each_repo(job, **args):
 
 def fileFor(attrName):
     global currentRepo
-    filename = "computed/%s/%s" % (currentRepo, attrName)
+    filename = "%s/%s" % (currentRepo, attrName)
     if os.path.exists(filename):
         return filename
     else:

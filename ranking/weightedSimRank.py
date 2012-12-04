@@ -13,7 +13,7 @@ import sys
 #    
 # Reading the input DF-graph
 #graph = pickle.load(open(sys.argv[1]))
-graph = pickle.load(open('computed/user-file-graph'))
+graph = pickle.load(open('user-file-graph'))
 print 'nodes',len(graph.nodes()),graph.nodes()
 print 'edges',len(graph.edges()),graph.edges()
 #sys.exit(0)

@@ -8,13 +8,16 @@ import pickle
 import sys
 import math
 
+popularityBias = 0.5
+epsilon = 1e-4
+
 #if len(sys.argv) != 2:
 #    print 'usage : DF-graphCreate.py <path_to_DFgraph> \n'
 #    sys.exit(1)
 #    
 # Reading the input DF-graph
 #graph = pickle.load(open(sys.argv[1]))
-graph = pickle.load(open('computed/user-file-graph'))
+graph = pickle.load(open('user-file-graph'))
 #print 'nodes',len(graph.nodes()),graph.nodes()
 #print 'edges',len(graph.edges()),graph.edges()
 #sys.exit(0)
@@ -42,8 +45,6 @@ T = 20
 print >>sys.stderr, "#Developers=%d, #Files=%d" % (len(lDevelopers), len(lFiles))
 hasConverged = False
 convergedAfterIteration = -1
-
-epsilon = 1e-6
 
 for iteration in range(T):
     print >>sys.stderr, iteration, 'beginning iteration'
@@ -73,7 +74,7 @@ for iteration in range(T):
             for j in range(i+1, len(ns)):
                print >>sys.stderr, "%s\t%s\t%f" % (ns[i],ns[j], score[(ns[i],ns[j])] + score[(ns[j],ns[i])])
     print >>sys.stderr, iteration, 'after computing Developers'
-    printScores(["TimBurks", "JoshuaBronson", "JeffBuck"])
+#    printScores(["TimBurks", "JoshuaBronson", "JeffBuck"])
     
     for i in range(len(lFiles)):
         for j in range(i+1,len(lFiles)):
@@ -102,14 +103,16 @@ for iteration in range(T):
         print >>sys.stderr, 'Convergence in ', iteration, 'iterations\n'
         break
 
-for i in range(len(lDevelopers)):
-    for j in range(i+1,len(lDevelopers)):
-        print lDevelopers[i], lDevelopers[j], score[(lDevelopers[i],lDevelopers[j])]
-    
 #for i in range(len(lFiles)):
 #    for j in range(i+1,len(lFiles)):
 #        print (lFiles[i],lFiles[j]), '--->', score[(lFiles[i],lFiles[j])]
     
 if hasConverged:
     print >>sys.stderr, 'Converged in ', convergedAfterIteration, 'iterations\n'
-pickle.dump(score, open('SimRank_scores.txt', 'w'))
+pickle.dump(score, open('simrank.pickled', 'w'))
+
+
+# output in textual form
+for i in range(len(lDevelopers)):
+    for j in range(i+1, len(lDevelopers)):
+        print lDevelopers[i], lDevelopers[j], score[(lDevelopers[i],lDevelopers[j])]

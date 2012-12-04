@@ -21,7 +21,8 @@ if ! type "$cmd" &>/dev/null; then
 else
     # run the script and store the result
     mkdir -p computed
-    out="computed/$globalProperty.txt"
+    cd computed
+    out="$globalProperty.txt"
     "$cmd" "$@" | tee "$out"
     # remove empty output, assuming $cmd created its own
     [ -s "$out" ] || rm -f "$out"
