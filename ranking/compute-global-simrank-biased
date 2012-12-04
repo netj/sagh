@@ -1,0 +1,2 @@
+#!/bin/sh -e
+biasedSimRank.py "$@" | sort -g -s -k 3,3 | sort -s -k1,1

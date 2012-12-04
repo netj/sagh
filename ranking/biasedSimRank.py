@@ -25,8 +25,8 @@ for i in range(numDevs):
     if i % (numDevs / 10) == 0:
         print >>sys.stderr, "%d developers done so far" % i
     # to normalize, we need 2-passes
-    scores_i_upper = []
-    scores_i_lower = []
+    scores_i_upper = [None] * (numDevs - i)
+    scores_i_lower = [None] * (numDevs - i)
     # first, collect the values and compute max
     for j in range(i+1, numDevs):
         scores_i_upper[j-(i+1)] = score[(lDevelopers[i],lDevelopers[j])] * pow(len(graph.neighbors(lDevelopers[j])), popularityBias)
@@ -34,7 +34,13 @@ for i in range(numDevs):
     max_upper = max(scores_i_upper)
     max_lower = max(scores_i_lower)
     # and then output normalized values
-    for j in range(i+1, numDevs):
-        print lDevelopers[i], lDevelopers[j], scores_i_upper[j-(i+1)] / max_upper
-        print lDevelopers[j], lDevelopers[i], scores_i_lower[j-(i+1)] / max_lower
-
+    if max_upper > 0:
+        for j in range(i+1, numDevs):
+            s = scores_i_upper[j-(i+1)]
+            if s > 0:
+                print lDevelopers[i], lDevelopers[j], scores_i_upper[j-(i+1)] / max_upper
+    if max_lower > 0:
+        for j in range(i+1, numDevs):
+            s = scores_i_lower[j-(i+1)]
+            if s > 0:
+                print lDevelopers[j], lDevelopers[i], scores_i_lower[j-(i+1)] / max_lower
