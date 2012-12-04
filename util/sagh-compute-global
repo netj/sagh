@@ -6,11 +6,24 @@
 # Created: 2012-11-14
 set -eu
 
-[ $# -gt 0 ] || usage "$0" "GLOBAL_PROPERTY missing"
+[ $# -gt 0 ] || {
+    usage "$0" "GLOBAL_PROPERTY missing" || true
+    msg
+    cd "$TOOLSDIR"
+    msg "GLOBAL_PROPERTY must be one of:"
+    for prop in compute-global-*; do
+        [ -x "$prop" ] || continue
+        msg "  ${prop#compute-global-}"
+    done
+    false
+}
 
 : ${SAGH_ROOT:=$(sagh-findroot)}
 
 globalProperty=$1; shift
+
+# postfix output file with arguments
+suffix=; for arg; do suffix+="-$arg"; done
 
 cd "$SAGH_ROOT"
 
@@ -22,7 +35,7 @@ else
     # run the script and store the result
     mkdir -p computed
     cd computed
-    out="$globalProperty.txt"
+    out="$globalProperty$suffix.txt"
     "$cmd" "$@" | tee "$out"
     # remove empty output, assuming $cmd created its own
     [ -s "$out" ] || rm -f "$out"
