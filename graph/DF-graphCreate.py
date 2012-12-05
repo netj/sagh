@@ -69,7 +69,9 @@ for developer in graph.nodes(data=True):
 
 for i in range(len(lDeveloper)):
     for j in range(i+1,len(lDeveloper)):
-        print lDeveloper[i]+'\t'+lDeveloper[j]+'\t'+str(score[(lDeveloper[i],lDeveloper[j])])
-        #f.write(lDeveloper[i]+'\t'+lDeveloper[j]+'\t'+str(score[(lDeveloper[i],lDeveloper[j])])+'\n')
+        s = score[(lDeveloper[i],lDeveloper[j])]
+        if s > 0:
+            print "%s\t%s\t%d" % (lDeveloper[i], lDeveloper[j], s)
+            #f.write(lDeveloper[i]+'\t'+lDeveloper[j]+'\t'+str(score[(lDeveloper[i],lDeveloper[j])])+'\n')
 
 #f.close()
