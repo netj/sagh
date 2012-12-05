@@ -41,7 +41,7 @@ for line in sys.stdin:
         #print
         #print author_id, author_name
         DFbipartite.add_node(author_id, type='Developer')
-        print >>sys.stderr, author_id
+        #print >>sys.stderr, author_id
     
 pickle.dump(DFbipartite, open('user-file-graph', 'w'))
 
