@@ -32,4 +32,4 @@ def loadSubgraph(repo):
     print >>sys.stderr, repo, " copied"
 sagh.for_each_repo(loadSubgraph)
 
-pickle.dump(g, open("computed/user-file-graph", "w"))
+pickle.dump(g, open("user-file-graph", "w"))
