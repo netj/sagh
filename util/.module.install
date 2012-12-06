@@ -2,5 +2,5 @@ jquery                  $TOOLSDIR/
 jsonpath                $TOOLSDIR/
 for-each-repo           $TOOLSDIR/
 sagh-init               $TOOLSDIR/
+sagh-compute-each       $TOOLSDIR/
 sagh-compute            $TOOLSDIR/
-sagh-compute-global     $TOOLSDIR/

@@ -7,9 +7,12 @@
 #   sagh init
 # 
 #   sagh sync-repos
-#   sagh compute-global PROPERTY
+#   sagh compute-each LOCAL_PROPERTY  [ARG]...
+#   sagh compute      GLOBAL_PROPERTY [ARG]...
 # 
+#   sagh collect-repos NUMHOPS [USER|REPO]...
 #   sagh ls-forks REPO
+#   sagh ls-repos USER
 # 
 #   sagh hack for-each-repo sh -c 'pwd; cd git; git log --format=%ae | wc -l'
 # 

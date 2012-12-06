@@ -1,42 +1,42 @@
 #!/usr/bin/env bash
-# sagh-compute -- compute a property for each GitHub repo
-# Usage: sagh compute LOCAL_PROPERTY [ARG]...
+# sagh-compute -- compute a global graph property on GitHub repos
+# Usage: sagh compute GLOBAL_PROPERTY [ARG]...
 #
 # Author: Jaeho Shin <netj@cs.stanford.edu>
 # Created: 2012-11-14
 set -eu
-shopt -s extglob
 
 [ $# -gt 0 ] || {
-    usage "$0" "LOCAL_PROPERTY missing" || true
+    usage "$0" "GLOBAL_PROPERTY missing" || true
     msg
     cd "$TOOLSDIR"
-    msg "LOCAL_PROPERTY must be one of:"
-    for prop in compute-!(global-*); do
+    msg "GLOBAL_PROPERTY must be one of:"
+    for prop in compute-global-*; do
         [ -x "$prop" ] || continue
-        msg "  ${prop#compute-}"
+        msg "  ${prop#compute-global-}"
     done
     false
 }
 
 : ${SAGH_ROOT:=$(sagh-findroot)}
 
-localProperty=$1; shift
+globalProperty=$1; shift
 
 # postfix output file with arguments
 suffix=; for arg; do suffix+="-$arg"; done
 
 cd "$SAGH_ROOT"
 
-cmd="compute-$localProperty"
+cmd="compute-global-$globalProperty"
 
 if ! type "$cmd" &>/dev/null; then
-    error "$localProperty: Undefined local property"
+    error "$globalProperty: Undefined global property"
 else
-    for-each-repo sh -c '
-    cmd=$1; shift
-    out=$1; shift
-    msg -2 "Computing $out for $GITHUB_REPO"
-    "$cmd" "$@" >"$out"
-    ' -- "$cmd" "$localProperty$suffix.txt" "$@"
+    # run the script and store the result
+    mkdir -p computed
+    cd computed
+    out="$globalProperty$suffix.txt"
+    "$cmd" "$@" | tee "$out"
+    # remove empty output, assuming $cmd created its own
+    [ -s "$out" ] || rm -f "$out"
 fi
