@@ -4,3 +4,4 @@ for-each-repo           $TOOLSDIR/
 sagh-init               $TOOLSDIR/
 sagh-compute-each       $TOOLSDIR/
 sagh-compute            $TOOLSDIR/
+run                     $TOOLSDIR/

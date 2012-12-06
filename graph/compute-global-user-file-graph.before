@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -eu
+
+# XXX compute-each common-files actually generates user-file-graph as well
+sagh-compute-each common-files

@@ -1,8 +1,9 @@
-DF-graphCreate.py               $TOOLSDIR/
-compute-each-common-files       $TOOLSDIR/
+DF-graphCreate.py                           $TOOLSDIR/
+compute-each-common-files                   $TOOLSDIR/
 
-compute-each-contributors       $TOOLSDIR/
+compute-each-contributors                   $TOOLSDIR/
 
-compute-global-user-file-graph  $TOOLSDIR/
+compute-global-user-file-graph              $TOOLSDIR/
+compute-global-user-file-graph.before       $TOOLSDIR/
 
-sagh.py                         $TOOLSDIR/
+sagh.py                                     $TOOLSDIR/

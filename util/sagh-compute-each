@@ -37,6 +37,6 @@ else
     cmd=$1; shift
     out=$1; shift
     msg -2 "Computing $out for $GITHUB_REPO"
-    "$cmd" "$@" >"$out"
+    run -o "$out"   "$cmd" "$@"
     ' -- "$cmd" "$localProperty$suffix.txt" "$@"
 fi

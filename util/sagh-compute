@@ -36,7 +36,7 @@ else
     mkdir -p computed
     cd computed
     out="$globalProperty$suffix.txt"
-    "$cmd" "$@" | tee "$out"
+    run -o "$out"   "$cmd" "$@"
     # remove empty output, assuming $cmd created its own
     [ -s "$out" ] || rm -f "$out"
 fi

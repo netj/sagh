@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# run -- run given command only when needed, after its dependencies
+# Usage: run [-o OUTPUT] [-t TIMESTAMP] COMMAND [ARG]...
+# 
+# TIMESTAMP is a path to a file (from current working dir) used for deciding
+# whether to run the command.  If no TIMESTAMP is given,
+# .ran.COMMAND-ARG1-ARG2-...-ARGn will be used as default.
+# 
+# If there is a command named COMMAND.before available, then it will be run
+# before the given COMMAND, and similarly, COMMAND.after will be run after the
+# given one.
+#
+# Author: Jaeho Shin <netj@cs.stanford.edu>
+# Created: 2012-12-06
+set -eu
+
+# process some options
+outputSink=
+timestamp=
+while getopts "o:t:" o; do
+    case $o in
+        o)
+            outputSink=$OPTARG
+            ;;
+        t)
+            timestamp=$OPTARG
+            ;;
+    esac
+done
+shift $(($OPTIND - 1))
+
+[ $# -gt 0 ] || usage "$0" "COMMAND missing"
+cmd=$1; shift
+
+# default timestamp name
+if [ -z "$timestamp" ]; then
+    timestamp=".ran.$cmd"
+    for arg; do timestamp+="-$arg"; done
+fi
+
+# export some useful values of this run for .before/after scripts
+RUN_DEPTH=${RUN_DEPTH:-0}
+let ++RUN_DEPTH
+export RUN_DEPTH
+export RUN_OUTPUT=$outputSink
+export RUN_TIMESTAMP=$timestamp
+
+# check timestamp only when this is running as a subtask for another run
+if [ $RUN_DEPTH -gt 1 -a -e "$timestamp" ]; then
+    msg "skipping run: $cmd $*"
+    exit 0
+fi
+# TODO compare timestamp with dependencies'
+
+
+# run the given command as well as the things before/after if available
+! type "$cmd.before" &>/dev/null || "$cmd.before" "$@"
+if [ -n "$outputSink" ]; then
+    mkdir -p "$(dirname "$outputSink")"
+    "$cmd" "$@" >"$outputSink"
+else
+    "$cmd" "$@"
+fi
+! type "$cmd.after"  &>/dev/null || "$cmd.after"  "$@"
+
+# update the timestamp
+mkdir -p "$(dirname "$timestamp")"
+touch "$timestamp"

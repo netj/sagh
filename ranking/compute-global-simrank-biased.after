@@ -1,0 +1,4 @@
+#!/bin/sh -e
+{
+    sort -g -s -k 3,3 | sort -s -k1,1 -k2,2
+} <"$RUN_OUTPUT" >"$RUN_OUTPUT".sorted

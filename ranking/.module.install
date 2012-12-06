@@ -1,4 +1,6 @@
-simRank.py              $TOOLSDIR/compute-global-simrank
-weightedSimRank.py      $TOOLSDIR/compute-global-simrank-weighted
-biasedSimRank.py        $TOOLSDIR/
-compute-global-simrank-biased  $TOOLSDIR/
+simRank.py                              $TOOLSDIR/compute-global-simrank
+compute-global-simrank.before           $TOOLSDIR/
+weightedSimRank.py                      $TOOLSDIR/compute-global-simrank-weighted
+biasedSimRank.py                        $TOOLSDIR/compute-global-simrank-biased
+compute-global-simrank-biased.before    $TOOLSDIR/
+compute-global-simrank-biased.after     $TOOLSDIR/
