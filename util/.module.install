@@ -8,3 +8,5 @@ sagh-init               $TOOLSDIR/
 
 jquery                  $TOOLSDIR/
 jsonpath                $TOOLSDIR/
+
+sagh.py                 $TOOLSDIR/

@@ -5,5 +5,3 @@ compute-each-contributors                   $TOOLSDIR/
 
 compute-global-user-file-graph              $TOOLSDIR/
 compute-global-user-file-graph.before       $TOOLSDIR/
-
-sagh.py                                     $TOOLSDIR/

@@ -1,1 +1,1 @@
-compute-global-pagerank.py      $TOOLSDIR/compute-global-pagerank
+compute-global-pagerank         $TOOLSDIR/
