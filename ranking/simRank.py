@@ -7,9 +7,13 @@ from collections import defaultdict
 import pickle
 import sys
 import math
+import sagh
 
 popularityBias = 0.5
 epsilon = 1e-4
+
+graphFileName = sagh.suffixWithArgs('user-file-graph', 1)
+tableFileName = sagh.suffixWithArgs('user-user-simrank', 1)
 
 #if len(sys.argv) != 2:
 #    print 'usage : DF-graphCreate.py <path_to_DFgraph> \n'
@@ -17,7 +21,8 @@ epsilon = 1e-4
 #    
 # Reading the input DF-graph
 #graph = pickle.load(open(sys.argv[1]))
-graph = pickle.load(open('user-file-graph'))
+print >>sys.stderr, "loading %s" % graphFileName
+graph = pickle.load(open(graphFileName))
 #print 'nodes',len(graph.nodes()),graph.nodes()
 #print 'edges',len(graph.edges()),graph.edges()
 #sys.exit(0)
@@ -115,7 +120,8 @@ scoreCompact = {}
 for i in range(len(lDevelopers)):
     for j in range(i+1, len(lDevelopers)):
         scoreCompact[(i,j)] = score[(lDevelopers[i],lDevelopers[j])]
-pickle.dump(scoreCompact, open('simrank.pickled', 'w'))
+print >>sys.stderr, "storing %s" % tableFileName
+pickle.dump(scoreCompact, open(tableFileName, 'w'))
 
 # output in textual form
 for i in range(len(lDevelopers)):

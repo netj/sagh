@@ -9,12 +9,15 @@ import math
 
 DEFAULT_POPULARITY_BIAS = 0.5
 
-popularityBias = float(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_POPULARITY_BIAS
+popularityBias = float(sys.argv[2]) if len(sys.argv) > 2 else DEFAULT_POPULARITY_BIAS
+graphFileName = sagh.suffixWithArgs('user-file-graph', 1)
+tableFileName = sagh.suffixWithArgs('user-user-simrank', 1)
+biasedTableFileName = sagh.suffixWithArgs('user-user-simrank.biased', 2)
 
-print >>sys.stderr, "loading user-file-graph"
-graph = pickle.load(open('user-file-graph'))
-print >>sys.stderr, "loading simrank.pickled"
-score = pickle.load(open('simrank.pickled'))
+print >>sys.stderr, "loading %s" % graphFileName
+graph = pickle.load(open(graphFileName))
+print >>sys.stderr, "loading %s" % tableFileName
+score = pickle.load(open(tableFileName))
 
 lDevelopers = []
 for node in graph.nodes(data=True):
@@ -43,3 +46,7 @@ for i in range(numDevs):
             s = biasedScore_i[j]
             if s > 0:
                 print lDevelopers[i], lDevelopers[j], s / max_i #, s
+
+
+print >>sys.stderr, "storing %s" % biasedTableFileName
+pickle.dump(biasedScore, open(biasedTableFileName, 'w'))

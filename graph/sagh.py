@@ -23,3 +23,9 @@ def fileFor(attrName):
     else:
         raise Exception("%s: Not found" % filename)
 
+def suffixWithArgs(basename='', upToNumArgs=len(sys.argv)-1):
+    name = basename
+    for i in range(1, min(upToNumArgs+1, len(sys.argv))):
+        name += '-' + sys.argv[i]
+    return name
+
