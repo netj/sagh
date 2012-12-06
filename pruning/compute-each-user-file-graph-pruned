@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+import sys, pickle
+import networkx as nx
+
+g= pickle.load(open('user-file-graph'))
+
+commit_tau = sys.argv[1] if len(sys.argv) > 1 else 5 # Number of commits per file
+dev_tau = 1 # Number of developers per file
+
+numDevs = 0
+numFiles = 0
+numPruned = 0
+print >>sys.stderr, "start pruning..."
+for n,data in g.nodes(data=True):
+    
+    if(data['type']!='File'): 
+        numDevs += 1
+        continue
+    else:
+        numFiles += 1
+    dev = g.neighbors(n)
+    if(len(dev)<=dev_tau): 
+        numPruned += 1
+        g.remove_node(n)
+        continue
+    
+    sum_dev=0
+    sum_commit=0
+    for d in dev:
+        sum_dev += 1
+        sum_commit += g.get_edge_data(d,n)['w']
+    if (sum_commit <= commit_tau):
+        numPruned += 1
+        g.remove_node(n)
+print >>sys.stderr, "after pruning", "numRemainingFiles=%d numFiles=%d numDevs=%d" % (numFiles - numPruned, numFiles, numDevs)
+
+pickle.dump(g, open('user-file-graph-pruned', 'w'))

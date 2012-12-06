@@ -30,7 +30,10 @@ for line in sys.stdin:
         file_name = line[0:line.find('|')].strip()
         #print file_name
         DFbipartite.add_node(file_name, type='File')
-        DFbipartite.add_edge(author_id,file_name)
+        if (author_id, file_name) in DFbipartite.edges():
+            data= DFbipartite.get_edge_data(author_id, file_name)
+            DFbipartite.add_edge(author_id,file_name, w=data['w']+1)
+        else: DFbipartite.add_edge(author_id,file_name, w=1)
         continue
         
     if 'Author:' in line:

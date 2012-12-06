@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+import networkx as nx
+import sagh,sys
+import re
+import pickle
+
+g = nx.Graph()
+
+# load subgraphs into a global graph
+def loadSubgraph(repo):
+    subg = pickle.load(open(sagh.fileFor("user-file-graph-pruned")))
+    print >>sys.stderr, repo, subg.number_of_nodes(), subg.number_of_edges()
+    def prefix(n,d=None):
+        if d == None:
+            d = subg.node[n]
+        if "type" in d:
+            if d["type"] == "File":
+                return "%s/%s" % (repo, n)
+            else: # "Developer"
+                return n
+        else:
+            raise Exception("No type for %s: %s" % (repo, n))
+    # copy all the nodes by prefixing ids
+    for n,d in subg.nodes_iter(data=True):
+        gn = prefix(n, d)
+        g.add_node(gn, d)
+    # copy all the edges
+    for n,n2,d in subg.edges_iter(data=True):
+        gn  = prefix(n)
+        gn2 = prefix(n2)
+        g.add_edge(gn, gn2, d)
+    print >>sys.stderr, repo, " copied"
+sagh.for_each_repo(loadSubgraph)
+
+# Developer Pruning
+numDevs = 0
+numFiles = 0
+numPruned = 0
+print >>sys.stderr, "start pruning..."
+for devs in g.nodes(data=True):
+    
+    if(devs[1]['type']!='Developer'): 
+        numFiles += 1
+        continue
+    else:
+        numDevs += 1
+    files = g.neighbors(devs[0])
+    
+    sum_file=0
+    sum_commit=0
+    for f in files:
+        sum_file += 1
+        sum_commit += g.get_edge_data(devs[0],f)['w']
+    if (sum_file==0 or sum_commit==sum_file):
+        numPruned += 1
+        g.remove_node(devs[0])
+    # Remove the edges of the developers one by one depending on commits
+    # Edges removed will be ones corresponding to files that have very small fraction of commits w.r.t this developer
+print >>sys.stderr, "after pruning", "numRemainingDevs=%d numDevs=%d numFiles=%d" % (numDevs - numPruned, numDevs, numFiles)
+
+pickle.dump(g, open("user-file-graph-pruned", "w"))
