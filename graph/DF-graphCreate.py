@@ -9,6 +9,9 @@ from collections import defaultdict
 import pickle
 import sys
 import re
+import sagh
+
+graphFileName = 'user-file-graph'
 
 DFbipartite = nx.Graph()
 flag = False
@@ -46,7 +49,7 @@ for line in sys.stdin:
         DFbipartite.add_node(author_id, type='Developer')
         #print >>sys.stderr, author_id
     
-pickle.dump(DFbipartite, open('user-file-graph', 'w'))
+pickle.dump(DFbipartite, open(graphFileName, 'w'))
 
 graph = DFbipartite
 score = defaultdict(int)

@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 import sys, pickle
 import networkx as nx
+import sagh
+
+graphFileName = sagh.suffixWithArgs('user-file-graph-pruned')
+
+commit_tau = int(sys.argv[1]) if len(sys.argv) > 1 else 5 # Number of commits per file
+dev_tau = 1 # Number of developers per file
 
 g= pickle.load(open('user-file-graph'))
-
-commit_tau = sys.argv[1] if len(sys.argv) > 1 else 5 # Number of commits per file
-dev_tau = 1 # Number of developers per file
 
 numDevs = 0
 numFiles = 0
@@ -34,4 +37,4 @@ for n,data in g.nodes(data=True):
         g.remove_node(n)
 print >>sys.stderr, "after pruning", "numRemainingFiles=%d numFiles=%d numDevs=%d" % (numFiles - numPruned, numFiles, numDevs)
 
-pickle.dump(g, open('user-file-graph-pruned', 'w'))
+pickle.dump(g, open(graphFileName, 'w'))

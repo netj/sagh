@@ -1,2 +1,4 @@
-compute-each-user-file-graph-pruned     $TOOLSDIR/
-compute-global-user-file-graph-pruned   $TOOLSDIR/
+compute-each-user-file-graph-pruned             $TOOLSDIR/
+compute-each-user-file-graph-pruned.before      $TOOLSDIR/
+compute-global-user-file-graph-pruned           $TOOLSDIR/
+compute-global-user-file-graph-pruned.before    $TOOLSDIR/

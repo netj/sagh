@@ -23,9 +23,6 @@ shopt -s extglob
 
 localProperty=$1; shift
 
-# postfix output file with arguments
-suffix=; for arg; do suffix+="-$arg"; done
-
 cd "$SAGH_ROOT"
 
 cmd="compute-each-$localProperty"
@@ -33,10 +30,5 @@ cmd="compute-each-$localProperty"
 if ! type "$cmd" &>/dev/null; then
     error "$localProperty: Undefined local property"
 else
-    for-each-repo sh -c '
-    cmd=$1; shift
-    out=$1; shift
-    msg -2 "Computing $out for $GITHUB_REPO"
-    run -o "$out"   "$cmd" "$@"
-    ' -- "$cmd" "$localProperty$suffix.txt" "$@"
+    for-each-repo compute-each "$localProperty" "$@"
 fi

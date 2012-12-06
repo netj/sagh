@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eu
+
+commitThresh=${1:-}
+devThresh=${2:-}
+
+# compute pruned files subgraph for each repo
+for-each-repo compute-each user-file-graph-pruned $commitThresh
+
+# consolidate pruned subgraphs into a global graph before we do the global pruning
+sagh-compute user-file-graph pruned${commitThresh:+-$commitThresh}
+
+# so we can continue pruning users from the global one

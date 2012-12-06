@@ -2,4 +2,4 @@
 set -eu
 
 # XXX compute-each common-files actually generates user-file-graph as well
-for-each-repo compute-each common-files
+compute-each common-files

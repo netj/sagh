@@ -4,33 +4,11 @@ import sagh,sys
 import re
 import pickle
 
-g = nx.Graph()
+graphFileName       = sagh.suffixWithArgs("user-file-graph-pruned", 1)
+prunedGraphFileName = sagh.suffixWithArgs("user-file-graph-pruned", 2)
 
-# load subgraphs into a global graph
-def loadSubgraph(repo):
-    subg = pickle.load(open(sagh.fileFor("user-file-graph-pruned")))
-    print >>sys.stderr, repo, subg.number_of_nodes(), subg.number_of_edges()
-    def prefix(n,d=None):
-        if d == None:
-            d = subg.node[n]
-        if "type" in d:
-            if d["type"] == "File":
-                return "%s/%s" % (repo, n)
-            else: # "Developer"
-                return n
-        else:
-            raise Exception("No type for %s: %s" % (repo, n))
-    # copy all the nodes by prefixing ids
-    for n,d in subg.nodes_iter(data=True):
-        gn = prefix(n, d)
-        g.add_node(gn, d)
-    # copy all the edges
-    for n,n2,d in subg.edges_iter(data=True):
-        gn  = prefix(n)
-        gn2 = prefix(n2)
-        g.add_edge(gn, gn2, d)
-    print >>sys.stderr, repo, " copied"
-sagh.for_each_repo(loadSubgraph)
+# load the unified global graph
+g = pickle.load(open(graphFileName))
 
 # Developer Pruning
 numDevs = 0
@@ -58,4 +36,4 @@ for devs in g.nodes(data=True):
     # Edges removed will be ones corresponding to files that have very small fraction of commits w.r.t this developer
 print >>sys.stderr, "after pruning", "numRemainingDevs=%d numDevs=%d numFiles=%d" % (numDevs - numPruned, numDevs, numFiles)
 
-pickle.dump(g, open("user-file-graph-pruned", "w"))
+pickle.dump(g, open(prunedGraphFileName, "w"))

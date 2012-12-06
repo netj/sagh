@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
 set -eu
 
-sagh-compute simrank "$@"
+graph=${1:-}
+
+sagh-compute simrank $graph

@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
 set -eu
 
-sagh-compute user-file-graph "$@"
+# either use pruned or original graph
+case ${1:-} in
+    pruned*)
+        params=${1#pruned}; shift
+        params=${params//-/ }
+        sagh-compute user-file-graph-pruned $params "$@"
+        ;;
+    *)
+        sagh-compute user-file-graph "$@"
+        ;;
+esac

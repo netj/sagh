@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# compute-each -- Actually compute a property for each GitHub repo
+# Usage: compute-each LOCAL_PROPERTY [ARG]...
+# 
+# This functor command is to be used with for-each-repo.
+#
+# Author: Jaeho Shin <netj@cs.stanford.edu>
+# Created: 2012-12-06
+set -eu
+shopt -s extglob
+
+[ $# -gt 0 ] || usage "$0" "LOCAL_PROPERTY missing"
+
+localProperty=$1; shift
+
+# postfix output filename with arguments
+suffix=; for arg; do suffix+="-$arg"; done
+out="$localProperty$suffix.txt"
+
+cmd="compute-each-$localProperty"
+msg -2 "Computing $localProperty$suffix${GITHUB_REPO:+ for $GITHUB_REPO}"
+run -o "$out"  "$cmd" "$@"

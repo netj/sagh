@@ -9,7 +9,6 @@ import sys
 import math
 import sagh
 
-popularityBias = 0.5
 epsilon = 1e-4
 
 graphFileName = sagh.suffixWithArgs('user-file-graph', 1)

@@ -10,6 +10,7 @@ set -eu
 
 : ${SAGH_ROOT:=$(sagh-findroot)}
 export SAGH_ROOT
+cd "$SAGH_ROOT"
 
 for repo in $(cat repos.txt); do
     (

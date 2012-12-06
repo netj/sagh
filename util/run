@@ -47,21 +47,28 @@ export RUN_TIMESTAMP=$timestamp
 
 # check timestamp only when this is running as a subtask for another run
 if [ $RUN_DEPTH -gt 1 -a -e "$timestamp" ]; then
-    msg "skipping run: $cmd $*"
+    msg "Skipping: $cmd $*"
     exit 0
 fi
 # TODO compare timestamp with dependencies'
 
 
 # run the given command as well as the things before/after if available
-! type "$cmd.before" &>/dev/null || "$cmd.before" "$@"
+if type "$cmd.before" &>/dev/null; then
+    msg +2 "Running: $cmd.before $*"
+    "$cmd.before" "$@"
+fi
+msg +1 "Running: $cmd $*"
 if [ -n "$outputSink" ]; then
     mkdir -p "$(dirname "$outputSink")"
     "$cmd" "$@" >"$outputSink"
 else
     "$cmd" "$@"
 fi
-! type "$cmd.after"  &>/dev/null || "$cmd.after"  "$@"
+if type "$cmd.after"  &>/dev/null; then
+    msg +2 "Running: $cmd.after $*"
+    "$cmd.after"  "$@"
+fi
 
 # update the timestamp
 mkdir -p "$(dirname "$timestamp")"
