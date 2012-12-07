@@ -17,8 +17,9 @@ mkdir -p computed
 cd computed
 
 cat ../repos.txt | # from repos.txt
+tr -d '\r' | # make sure DOS format works as well
 sed 's/[ \t]*#.*$//' | grep -v '^\s*$' | # remove all comments
-xargs --max-procs=$SAGH_NUMCORES -I"{}" -- bash -c '
+xargs -L1 --max-procs=$SAGH_NUMCORES -I"{}" -- bash -c '
 repo={}
 mkdir -p "$repo"
 cd "$repo"

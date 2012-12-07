@@ -6,13 +6,15 @@
 # Created: 2012-11-14
 set -eu
 
-for-each-repo sh -c '
+for-each-repo bash -ec '
     msg -2 "Syncing $GITHUB_REPO"
     ln -sfn "$GIT_DIR" git
+    giturl="http://github.com/$GITHUB_REPO.git"
     if ! [ -s git/HEAD -o -s git/.git/HEAD ]; then
         mkdir -p "$(dirname "$GIT_DIR")"
-        git clone --bare "https://github.com/$GITHUB_REPO.git" "$GIT_DIR"
+        git clone --bare "$giturl" "$GIT_DIR"
     fi
     cd git
+    git config remote.origin.url "$giturl"
     git remote update
     '
