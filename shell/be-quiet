@@ -6,4 +6,4 @@
 # Author: Jaeho Shin <netj@cs.stanford.edu>
 # Created: 2012-11-01
 (( SAGH_LOGLVL += 1 - ${1:-0} ))
-[[ $SHLVL > $SAGH_LOGLVL ]]
+[[ $SHLVL -gt $SAGH_LOGLVL ]]
