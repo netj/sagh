@@ -34,4 +34,7 @@ def loadSubgraph(repo):
     print >>sys.stderr, repo, " copied"
 sagh.for_each_repo(loadSubgraph)
 
-pickle.dump(g, open(graphFileName, "w"))
+intg = nx.convert_node_labels_to_integers(g, discard_old_labels=False)
+intg.node_labels_inv = {intid:name for name, intid in intg.node_labels.items()}
+
+pickle.dump(intg, open(graphFileName, "w"))

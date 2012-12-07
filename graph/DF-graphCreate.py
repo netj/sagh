@@ -17,6 +17,7 @@ DFbipartite = nx.Graph()
 flag = False
 count  = 1
 
+#print >>sys.stderr, "log to graph"
 author_id = '';
 for line in sys.stdin:
     
@@ -33,10 +34,9 @@ for line in sys.stdin:
         file_name = line[0:line.find('|')].strip()
         #print file_name
         DFbipartite.add_node(file_name, type='File')
-        if (author_id, file_name) in DFbipartite.edges():
-            data= DFbipartite.get_edge_data(author_id, file_name)
-            DFbipartite.add_edge(author_id,file_name, w=data['w']+1)
-        else: DFbipartite.add_edge(author_id,file_name, w=1)
+        data = DFbipartite.get_edge_data(author_id, file_name)
+        weight = 1 if data == None else data['w']+1
+        DFbipartite.add_edge(author_id,file_name, w=weight)
         continue
         
     if 'Author:' in line:
@@ -49,12 +49,15 @@ for line in sys.stdin:
         DFbipartite.add_node(author_id, type='Developer')
         #print >>sys.stderr, author_id
     
+#print >>sys.stderr, "log to graph done, dumping"
 pickle.dump(DFbipartite, open(graphFileName, 'w'))
+#print >>sys.stderr, "dumping done"
 
 graph = DFbipartite
 score = defaultdict(int)
 lDeveloper = []
 
+#print >>sys.stderr, "counting common-files"
 for files in graph.nodes(data=True):
     
     if(files[1]['type']!='File'): continue
@@ -65,6 +68,11 @@ for files in graph.nodes(data=True):
             score[(lDeveloper[i],lDeveloper[j])] += 1
             score[(lDeveloper[j],lDeveloper[i])] += 1
   
+
+
+
+
+#print >>sys.stderr, "dumping common-files"
 lDeveloper = []  
 for developer in graph.nodes(data=True):
     if(developer[1]['type']!='Developer'): continue

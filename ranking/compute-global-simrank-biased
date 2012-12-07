@@ -46,7 +46,7 @@ for i in range(numDevs):
             if i == j: continue
             s = biasedScore_i[j]
             if s > 0:
-                print lDevelopers[i], lDevelopers[j], s / max_i #, s
+                print g.node_labels_inv[lDevelopers[i]], g.node_labels_inv[lDevelopers[j]], s / max_i #, s
 
 
 print >>sys.stderr, "storing %s" % biasedTableFileName

@@ -125,5 +125,5 @@ pickle.dump(scoreCompact, open(tableFileName, 'w'))
 # output in textual form
 for i in range(len(lDevelopers)):
     for j in range(i+1, len(lDevelopers)):
-        print lDevelopers[i], lDevelopers[j], score[(lDevelopers[i],lDevelopers[j])]
+        print g.node_labels_inv[lDevelopers[i]], g.node_labels_inv[lDevelopers[j]], score[(lDevelopers[i],lDevelopers[j])]
 
