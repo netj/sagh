@@ -27,24 +27,24 @@ numDevs = len(lDevelopers)
 
 biasedScore = {}
 for i, u in enumerate(lDevelopers):
+    if i % (numDevs / 10) == 0:
+        print >>sys.stderr, "%d developers done so far" % i
     for v in lDevelopers[i+1:]:
         biasedScore[(u,v)] = score[(u,v)] * pow(len(graph.neighbors(v)), popularityBias)
         biasedScore[(v,u)] = score[(u,v)] * pow(len(graph.neighbors(u)), popularityBias)
-    if i % (numDevs / 10) == 0:
-        print >>sys.stderr, "%d developers done so far" % i
 
 for i, u in enumerate(lDevelopers):
     # to normalize, we need 2-passes
     biasedScore_u = [None] * numDevs
     # first, collect the values and compute max
-    for v in lDevelopers:
+    for j, v in enumerate(lDevelopers):
         if u == v: continue
-        biasedScore_u[v] = biasedScore[(u,v)]
+        biasedScore_u[j] = biasedScore[(u,v)]
     max_u = max(biasedScore_u)
     if max_u > 0:
-        for v in lDevelopers:
+        for j, v in enumerate(lDevelopers):
             if u == v: continue
-            s = biasedScore_u[v]
+            s = biasedScore_u[j]
             if s > 0:
                 print graph.node_labels_inv[u], graph.node_labels_inv[v], s / max_u #, s
 
