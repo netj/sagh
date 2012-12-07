@@ -26,27 +26,27 @@ for node in graph.nodes(data=True):
 numDevs = len(lDevelopers)
 
 biasedScore = {}
-for i in range(numDevs):
+for i, u in enumerate(lDevelopers):
+    for v in lDevelopers[i+1:]:
+        biasedScore[(u,v)] = score[(u,v)] * pow(len(graph.neighbors(v)), popularityBias)
+        biasedScore[(v,u)] = score[(u,v)] * pow(len(graph.neighbors(u)), popularityBias)
     if i % (numDevs / 10) == 0:
         print >>sys.stderr, "%d developers done so far" % i
-    for j in range(i+1, numDevs):
-        biasedScore[(i,j)] = score[(i,j)] * pow(len(graph.neighbors(lDevelopers[j])), popularityBias)
-        biasedScore[(j,i)] = score[(i,j)] * pow(len(graph.neighbors(lDevelopers[i])), popularityBias)
 
-for i in range(numDevs):
+for i, u in enumerate(lDevelopers):
     # to normalize, we need 2-passes
-    biasedScore_i = [None] * numDevs
+    biasedScore_u = [None] * numDevs
     # first, collect the values and compute max
-    for j in range(numDevs):
-        if i == j: continue
-        biasedScore_i[j] = biasedScore[(i,j)]
-    max_i = max(biasedScore_i)
-    if max_i > 0:
-        for j in range(numDevs):
-            if i == j: continue
-            s = biasedScore_i[j]
+    for v in lDevelopers:
+        if u == v: continue
+        biasedScore_u[v] = biasedScore[(u,v)]
+    max_u = max(biasedScore_u)
+    if max_u > 0:
+        for v in lDevelopers:
+            if u == v: continue
+            s = biasedScore_u[v]
             if s > 0:
-                print g.node_labels_inv[lDevelopers[i]], g.node_labels_inv[lDevelopers[j]], s / max_i #, s
+                print graph.node_labels_inv[u], graph.node_labels_inv[v], s / max_u #, s
 
 
 print >>sys.stderr, "storing %s" % biasedTableFileName

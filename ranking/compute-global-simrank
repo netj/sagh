@@ -107,6 +107,10 @@ for iteration in range(T):
         print >>sys.stderr, 'Convergence in ', iteration, 'iterations\n'
         break
 
+    # dumping intermediate score table to disk
+    print >>sys.stderr, "storing %s" % tableFileName
+    pickle.dump(score, open(tableFileName, 'w'))
+
 #for i in range(len(lFiles)):
 #    for j in range(i+1,len(lFiles)):
 #        print (lFiles[i],lFiles[j]), '--->', score[(lFiles[i],lFiles[j])]
@@ -115,15 +119,11 @@ if hasConverged:
     print >>sys.stderr, 'Converged in ', convergedAfterIteration, 'iterations\n'
 
 # store the compact version of simrank scores (of developers only)
-scoreCompact = {}
-for i in range(len(lDevelopers)):
-    for j in range(i+1, len(lDevelopers)):
-        scoreCompact[(i,j)] = score[(lDevelopers[i],lDevelopers[j])]
 print >>sys.stderr, "storing %s" % tableFileName
-pickle.dump(scoreCompact, open(tableFileName, 'w'))
+pickle.dump(score, open(tableFileName, 'w'))
 
 # output in textual form
 for i in range(len(lDevelopers)):
     for j in range(i+1, len(lDevelopers)):
-        print g.node_labels_inv[lDevelopers[i]], g.node_labels_inv[lDevelopers[j]], score[(lDevelopers[i],lDevelopers[j])]
+        print graph.node_labels_inv[lDevelopers[i]], graph.node_labels_inv[lDevelopers[j]], score[(lDevelopers[i],lDevelopers[j])]
 
