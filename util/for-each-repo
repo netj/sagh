@@ -21,6 +21,7 @@ sed 's/[ \t]*#.*$//' | grep -v '^\s*$' | # remove all comments
 xargs --max-procs=$SAGH_NUMCORES -I"{}" -- bash -c '
 repo={}
 mkdir -p "$repo"
+cd "$repo"
 GITHUB_REPO="$repo" \
 GIT_DIR="$SAGH_ROOT/github/$repo/git" \
     "$@"
