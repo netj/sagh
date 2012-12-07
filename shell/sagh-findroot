@@ -17,5 +17,5 @@ done
 if is-root; then
     pwd
 else
-    error "$OPWD: Not inside an experiment repository"
+    error "$OPWD: Not inside a SAGH repository"
 fi

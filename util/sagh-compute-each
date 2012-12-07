@@ -19,7 +19,7 @@ shopt -s extglob
     false
 }
 
-: ${SAGH_ROOT:=$(sagh-findroot)}
+[ -n "${SAGH_ROOT:-}" ] || SAGH_ROOT=$(sagh-findroot)
 
 localProperty=$1; shift
 

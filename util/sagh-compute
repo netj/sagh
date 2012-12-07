@@ -18,7 +18,7 @@ set -eu
     false
 }
 
-: ${SAGH_ROOT:=$(sagh-findroot)}
+[ -n "${SAGH_ROOT:-}" ] || SAGH_ROOT=$(sagh-findroot)
 
 globalProperty=$1; shift
 
