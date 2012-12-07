@@ -48,8 +48,10 @@ if [ -z "${SAGH_HOME:-}" ]; then
     export TOOLSDIR="$SAGH_HOME/@TOOLSDIR@"
     export DATADIR="$SAGH_HOME/@DATADIR@"
 
-    export PATH="$TOOLSDIR:$PATH"
+    node_modules="$SAGH_HOME"/lib/node_modules
+    export PATH="$TOOLSDIR:$node_modules/.bin:$PATH"
     export PYTHONPATH="$TOOLSDIR${PYTHONPATH:+:${PYTHONPATH:-}}"
+    export NODE_PATH="$node_modules${NODE_PATH:+:${NODE_PATH:-}}"
     unset CDPATH
     export SHLVL=0 SAGH_LOGLVL=${SAGH_LOGLVL:-1}
 fi

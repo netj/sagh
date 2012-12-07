@@ -8,3 +8,8 @@ set -eu
 PARAMS
 chmod +x .build/sagh.sh
 
+# node_modules
+mkdir -p .build
+cd .build
+ln -sfn ../package.json
+npm install

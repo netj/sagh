@@ -7,3 +7,6 @@ be-quiet                    $TOOLSDIR/
 
 sagh-findroot               $TOOLSDIR/
 sagh-hack                   $TOOLSDIR/
+
+.build/node_modules         lib/
+.build/node_modules/.bin    lib/node_modules/
