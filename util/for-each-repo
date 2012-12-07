@@ -8,16 +8,20 @@ set -eu
 
 [ $# -gt 0 ] || usage "$0" "COMMAND missing"
 
+: ${SAGH_NUMCORES:=$(grep -c 'processor.*:' /proc/cpuinfo || echo 1)}
 : ${SAGH_ROOT:=$(sagh-findroot)}
 export SAGH_ROOT
 cd "$SAGH_ROOT"
 
-for repo in $(cat repos.txt); do
-    (
-    mkdir -p "computed/$repo"
-    cd "computed/$repo"
-    GIT_DIR="$SAGH_ROOT/github/$repo/git" \
-    GITHUB_REPO=$repo \
-        "$@"
-    )
-done
+mkdir -p computed
+cd computed
+
+cat ../repos.txt | # from repos.txt
+sed 's/[ \t]*#.*$//' | grep -v '^\s*$' | # remove all comments
+xargs --max-procs=$SAGH_NUMCORES -I"{}" -- bash -c '
+repo={}
+mkdir -p "$repo"
+GITHUB_REPO="$repo" \
+GIT_DIR="$SAGH_ROOT/github/$repo/git" \
+    "$@"
+' -- "$@" # and run in parallel
