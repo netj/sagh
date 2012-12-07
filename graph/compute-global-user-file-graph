@@ -35,6 +35,8 @@ def loadSubgraph(repo):
 sagh.for_each_repo(loadSubgraph)
 
 intg = nx.convert_node_labels_to_integers(g, discard_old_labels=False)
-intg.node_labels_inv = {intid:name for name, intid in intg.node_labels.items()}
+# py2.7 syntax: intg.node_labels_inv = {intid:name for name, intid in intg.node_labels.items()}
+intg.node_labels_inv = {}
+for name, intid in intg.node_labels.items(): intg.node_labels_inv[intid] = name
 
 pickle.dump(intg, open(graphFileName, "w"))
