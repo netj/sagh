@@ -3,127 +3,159 @@
 Input: Path to pickled DF-bipartite graph
 Output: Pickled Dictionary containing Similarity between P-P and D-D
 '''
+from multiprocessing import Pool, Process
+from multiprocessing.managers import BaseManager, DictProxy
 from collections import defaultdict
 import pickle
-import sys
+import sys,os
 import math
 import sagh
 
-epsilon = 1e-4
 
-graphFileName = sagh.suffixWithArgs('user-file-graph', 1)
-tableFileName = sagh.suffixWithArgs('user-user-simrank', 1)
+numProcesses = int(os.environ['SAGH_NUMCORES']) if 'SAGH_NUMCORES' in os.environ else 4
 
-#if len(sys.argv) != 2:
-#    print 'usage : DF-graphCreate.py <path_to_DFgraph> \n'
-#    sys.exit(1)
-#    
-# Reading the input DF-graph
-#graph = pickle.load(open(sys.argv[1]))
-print >>sys.stderr, "loading %s" % graphFileName
-graph = pickle.load(open(graphFileName))
-#print 'nodes',len(graph.nodes()),graph.nodes()
-#print 'edges',len(graph.edges()),graph.edges()
-#sys.exit(0)
 
-score = defaultdict(float)
+class Manager(BaseManager):
+    pass
 
-for node in graph.nodes():
-    score[(node,node)] = 1.0
+Manager.register('defaultdict', defaultdict, DictProxy)
 
-lDevelopers = []
-lFiles = []
 
-for node in graph.nodes(data=True):
-    if (node[1]['type']=='Developer'): lDevelopers.append(node[0])
-    else: lFiles.append(node[0])
-
-#print len(lDevelopers), lDevelopers
-#print len(lFiles), lFiles
-#
-#print lDevelopers
-#print lFiles
-
-T = 20
-
-print >>sys.stderr, "#Developers=%d, #Files=%d" % (len(lDevelopers), len(lFiles))
-hasConverged = False
-convergedAfterIteration = -1
-
-for iteration in range(T):
-    print >>sys.stderr, iteration, 'beginning iteration'
+def f((i,j,score,lDevelopers,graph)):
+    c = 0.8
+    count1 = len(graph.neighbors(lDevelopers[i]))
+    count2 = len(graph.neighbors(lDevelopers[j])) 
+    if(count1==0 or count2==0): 
+        return True
     
-    flag = True
-    for i in range(len(lDevelopers)):
-        for j in range(i+1,len(lDevelopers)):
-            
-            c = 0.8
-            count1 = len(graph.neighbors(lDevelopers[i]))
-            count2 = len(graph.neighbors(lDevelopers[j])) 
-            if(count1==0 or count2==0): continue
-            
-            total = 0.0
-            for f1 in graph.neighbors(lDevelopers[i]):
-                for f2 in graph.neighbors(lDevelopers[j]):
-                    total += score[(f1,f2)]
-            
-            newScore = float(c*total)/float(count1*count2)
+    total = 0.0
+    for f1 in graph.neighbors(lDevelopers[i]):
+        for f2 in graph.neighbors(lDevelopers[j]):
+            total += score[(f1,f2)]
+    
+    newScore = float(c*total)/float(count1*count2)
 
-            if (math.fabs(score[(lDevelopers[i],lDevelopers[j])] - newScore) > epsilon):
-                score[(lDevelopers[i],lDevelopers[j])]=newScore
-                flag=False
+    if (math.fabs(score[(lDevelopers[i],lDevelopers[j])] - newScore) > epsilon):
+        score[(lDevelopers[i],lDevelopers[j])]=newScore
+        return False
+
+    return True
+
+if __name__ == '__main__':
+    manager = Manager()
+    manager.start()
+    epsilon = 1e-4
+    graphFileName = sagh.suffixWithArgs('user-file-graph', 1)
+    tableFileName = sagh.suffixWithArgs('user-user-simrank', 1)
+
+    #if len(sys.argv) != 2:
+    #    print 'usage : DF-graphCreate.py <path_to_DFgraph> \n'
+    #    sys.exit(1)
+    #    
+    # Reading the input DF-graph
+    #graph = pickle.load(open(sys.argv[1]))
+    print >>sys.stderr, "loading %s" % graphFileName
+    graph = pickle.load(open(graphFileName))
+    #print 'nodes',len(graph.nodes()),graph.nodes()
+    #print 'edges',len(graph.edges()),graph.edges()
+    #sys.exit(0)
+    print >>sys.stderr, "done loading"
+
+    #score = manager.dict()
+    score = manager.defaultdict(float)
+    print >>sys.stderr, "manager dict ready"
+
+    for node in graph.nodes():
+        score[(node,node)] = 1.0
+    '''
+    for node1 in graph.nodes():
+        for node2 in graph.nodes():
+            if (node1==node2): 
+                score[(node1,node2)] = 1.0
+            else: 
+                score[(node1,node2)]=0.0
+    '''
+
+    print >>sys.stderr, "manager dict init"
+
+    lDevelopers = []
+    lFiles = []
+
+    for node in graph.nodes(data=True):
+        if (node[1]['type']=='Developer'): lDevelopers.append(node[0])
+        else: lFiles.append(node[0])
+
+    #print len(lDevelopers), lDevelopers
+    #print len(lFiles), lFiles
+    #
+    #print lDevelopers
+    #print lFiles
+
+    T = 20
+    print >>sys.stderr, 'ashish'
+    print >>sys.stderr, "#Developers=%d, #Files=%d" % (len(lDevelopers), len(lFiles))
+    hasConverged = False
+    convergedAfterIteration = -1
+
+    for iteration in range(T):
+        print >>sys.stderr, iteration, 'beginning iteration'
+        flag = True
+
+        temp=[]
+        for i in range(len(lDevelopers)):
+            for j in range(i+1,len(lDevelopers)):
+                temp.append((i,j,score,lDevelopers,graph))
+
+        pool=Pool(processes=numProcesses)
+        flagList = pool.map(f,temp)
+        while cond in flagList:
+                if cond==False:
+                    flag = False
+                    break
+                    
+        def printScores(ns):
+            for i in range(len(ns)):
+                for j in range(i+1, len(ns)):
+                   print >>sys.stderr, "%s\t%s\t%f" % (ns[i],ns[j], score[(ns[i],ns[j])] + score[(ns[j],ns[i])])
+        print >>sys.stderr, iteration, 'after computing Developers'
+        
+        temp = []
+        for i in range(len(lFiles)):
+            for j in range(i+1,len(lFiles)):
+                temp.append((i,j,score,lFiles,graph))
+
+        pool=Pool(processes=numProcesses)
+        flagList = pool.map(f,temp)
+        while cond in flagList:
+                if cond==False:
+                    flag = False
+                    break
+
+        print >>sys.stderr, iteration, 'after computing Files'
                 
-    def printScores(ns):
-        for i in range(len(ns)):
-            for j in range(i+1, len(ns)):
-               print >>sys.stderr, "%s\t%s\t%f" % (ns[i],ns[j], score[(ns[i],ns[j])] + score[(ns[j],ns[i])])
-    print >>sys.stderr, iteration, 'after computing Developers'
-#    printScores(["TimBurks", "JoshuaBronson", "JeffBuck"])
-    
-    for i in range(len(lFiles)):
-        for j in range(i+1,len(lFiles)):
-            
-            c = 0.8
-            count1 = len(graph.neighbors(lFiles[i]))
-            count2 = len(graph.neighbors(lFiles[j]))
-            if(count1==0 or count2==0): continue
-            
-            total = 0.0
-            for d1 in graph.neighbors(lFiles[i]):
-                for d2 in graph.neighbors(lFiles[j]):
-                    total += score[(d1,d2)]
-            
-            newScore = float(c*total)/float(count1*count2)
+        if(flag):
+            hasConverged = True
+            convergedAfterIteration = iteration
+            print >>sys.stderr, 'Convergence in ', iteration, 'iterations\n'
+            break
 
-            if (math.fabs(score[(lFiles[i],lFiles[j])] - newScore) > epsilon):
-                score[(lFiles[i],lFiles[j])]=newScore
-                flag=False
+        # dumping intermediate score table to disk
+        print >>sys.stderr, "storing %s" % tableFileName
+        pickle.dump(score, open(tableFileName, 'w'))
 
-    print >>sys.stderr, iteration, 'after computing Files'
-            
-    if(flag):
-        hasConverged = True
-        convergedAfterIteration = iteration
-        print >>sys.stderr, 'Convergence in ', iteration, 'iterations\n'
-        break
+    #for i in range(len(lFiles)):
+    #    for j in range(i+1,len(lFiles)):
+    #        print (lFiles[i],lFiles[j]), '--->', score[(lFiles[i],lFiles[j])]
+        
+    if hasConverged:
+        print >>sys.stderr, 'Converged in ', convergedAfterIteration, 'iterations\n'
 
-    # dumping intermediate score table to disk
+    # store the compact version of simrank scores (of developers only)
     print >>sys.stderr, "storing %s" % tableFileName
     pickle.dump(score, open(tableFileName, 'w'))
 
-#for i in range(len(lFiles)):
-#    for j in range(i+1,len(lFiles)):
-#        print (lFiles[i],lFiles[j]), '--->', score[(lFiles[i],lFiles[j])]
-    
-if hasConverged:
-    print >>sys.stderr, 'Converged in ', convergedAfterIteration, 'iterations\n'
-
-# store the compact version of simrank scores (of developers only)
-print >>sys.stderr, "storing %s" % tableFileName
-pickle.dump(score, open(tableFileName, 'w'))
-
-# output in textual form
-for i in range(len(lDevelopers)):
-    for j in range(i+1, len(lDevelopers)):
-        print graph.node_labels_inv[lDevelopers[i]], graph.node_labels_inv[lDevelopers[j]], score[(lDevelopers[i],lDevelopers[j])]
+    # output in textual form
+    for i in range(len(lDevelopers)):
+        for j in range(i+1, len(lDevelopers)):
+            print graph.node_labels_inv[lDevelopers[i]], graph.node_labels_inv[lDevelopers[j]], score[(lDevelopers[i],lDevelopers[j])]
 

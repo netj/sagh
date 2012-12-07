@@ -54,6 +54,9 @@ if [ -z "${SAGH_HOME:-}" ]; then
     export NODE_PATH="$node_modules${NODE_PATH:+:${NODE_PATH:-}}"
     unset CDPATH
     export SHLVL=0 SAGH_LOGLVL=${SAGH_LOGLVL:-1}
+
+    : ${SAGH_NUMCORES:=$(grep -c 'processor.*:' /proc/cpuinfo || echo 1)}
+    export SAGH_NUMCORES
 fi
 
 

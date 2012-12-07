@@ -8,7 +8,6 @@ set -eu
 
 [ $# -gt 0 ] || usage "$0" "COMMAND missing"
 
-: ${SAGH_NUMCORES:=$(grep -c 'processor.*:' /proc/cpuinfo || echo 1)}
 : ${SAGH_ROOT:=$(sagh-findroot)}
 export SAGH_ROOT
 cd "$SAGH_ROOT"
