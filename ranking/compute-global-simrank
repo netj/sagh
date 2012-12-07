@@ -20,23 +20,32 @@ class Manager(BaseManager):
 
 Manager.register('defaultdict', defaultdict, DictProxy)
 
+graph = None
+lDevelopers = None
+lFiles = None
 
-def f((i,j,score,lDevelopers,graph)):
+def f((i,j,score,step)):
+
+    if step == 0:
+        lst = lDevelopers
+    else:
+        lst = lFiles
+
     c = 0.8
-    count1 = len(graph.neighbors(lDevelopers[i]))
-    count2 = len(graph.neighbors(lDevelopers[j])) 
+    count1 = len(graph.neighbors(lst[i]))
+    count2 = len(graph.neighbors(lst[j])) 
     if(count1==0 or count2==0): 
         return True
     
     total = 0.0
-    for f1 in graph.neighbors(lDevelopers[i]):
-        for f2 in graph.neighbors(lDevelopers[j]):
+    for f1 in graph.neighbors(lst[i]):
+        for f2 in graph.neighbors(lst[j]):
             total += score[(f1,f2)]
     
     newScore = float(c*total)/float(count1*count2)
 
-    if (math.fabs(score[(lDevelopers[i],lDevelopers[j])] - newScore) > epsilon):
-        score[(lDevelopers[i],lDevelopers[j])]=newScore
+    if (math.fabs(score[(lst[i],lst[j])] - newScore) > epsilon):
+        score[(lst[i],lst[j])]=newScore
         return False
 
     return True
@@ -97,6 +106,8 @@ if __name__ == '__main__':
     hasConverged = False
     convergedAfterIteration = -1
 
+    pool=Pool(processes=numProcesses)
+
     for iteration in range(T):
         print >>sys.stderr, iteration, 'beginning iteration'
         flag = True
@@ -104,9 +115,8 @@ if __name__ == '__main__':
         temp=[]
         for i in range(len(lDevelopers)):
             for j in range(i+1,len(lDevelopers)):
-                temp.append((i,j,score,lDevelopers,graph))
+                temp.append((i,j,score,0))
 
-        pool=Pool(processes=numProcesses)
         flagList = pool.map(f,temp)
         while cond in flagList:
                 if cond==False:
@@ -122,9 +132,8 @@ if __name__ == '__main__':
         temp = []
         for i in range(len(lFiles)):
             for j in range(i+1,len(lFiles)):
-                temp.append((i,j,score,lFiles,graph))
+                temp.append((i,j,score,1))
 
-        pool=Pool(processes=numProcesses)
         flagList = pool.map(f,temp)
         while cond in flagList:
                 if cond==False:
