@@ -4,58 +4,64 @@ Input: Path to pickled DF-bipartite graph
 Output: Pickled Dictionary containing Similarity between P-P and D-D
 '''
 from multiprocessing import Pool, Process
-from multiprocessing.managers import BaseManager, DictProxy
 from collections import defaultdict
 import pickle
 import sys,os
 import math
 import sagh
 
-
 numProcesses = int(os.environ['SAGH_NUMCORES']) if 'SAGH_NUMCORES' in os.environ else 4
-
-
-class Manager(BaseManager):
-    pass
-
-Manager.register('defaultdict', defaultdict, DictProxy)
 
 graph = None
 lDevelopers = None
 lFiles = None
+score = None
 
-def f((i,j,score,step)):
+def f((i,step)):
+
+    newScores = {}
 
     if step == 0:
         lst = lDevelopers
     else:
         lst = lFiles
 
-    c = 0.8
-    count1 = len(graph.neighbors(lst[i]))
-    count2 = len(graph.neighbors(lst[j])) 
-    if(count1==0 or count2==0): 
-        return True
-    
-    total = 0.0
-    for f1 in graph.neighbors(lst[i]):
-        for f2 in graph.neighbors(lst[j]):
-            total += score[(f1,f2)]
-    
-    newScore = float(c*total)/float(count1*count2)
+    hasConverged = True
 
-    if (math.fabs(score[(lst[i],lst[j])] - newScore) > epsilon):
-        score[(lst[i],lst[j])]=newScore
-        return False
+    for j in range(i+1,len(lst)):
+        c = 0.8
+        count1 = len(graph.neighbors(lst[i]))
+        count2 = len(graph.neighbors(lst[j])) 
+        if(count1==0 or count2==0): 
+            continue
+        
+        total = 0.0
+        for f1 in graph.neighbors(lst[i]):
+            for f2 in graph.neighbors(lst[j]):
+                total += score[(f1,f2)]
+        
+        newScore = float(c*total)/float(count1*count2)
 
-    return True
+        if (math.fabs(score[(lst[i],lst[j])] - newScore) > epsilon):
+            newScores[(lst[i],lst[j])]=newScore
+            hasConverged = False
+
+    return hasConverged, newScores
+
+def printScores(ns):
+    for i in range(len(ns)):
+        for j in range(i+1, len(ns)):
+           print >>sys.stderr, "%s\t%s\t%f" % (ns[i],ns[j], score[(ns[i],ns[j])] + score[(ns[j],ns[i])])
 
 if __name__ == '__main__':
-    manager = Manager()
-    manager.start()
     epsilon = 1e-4
     graphFileName = sagh.suffixWithArgs('user-file-graph', 1)
     tableFileName = sagh.suffixWithArgs('user-user-simrank', 1)
+
+    # debugging
+    #import multiprocessing, logging
+    #logger = multiprocessing.log_to_stderr()
+    #logger.setLevel(multiprocessing.SUBDEBUG)
 
     #if len(sys.argv) != 2:
     #    print 'usage : DF-graphCreate.py <path_to_DFgraph> \n'
@@ -70,22 +76,10 @@ if __name__ == '__main__':
     #sys.exit(0)
     print >>sys.stderr, "done loading"
 
-    #score = manager.dict()
-    score = manager.defaultdict(float)
-    print >>sys.stderr, "manager dict ready"
+    score = defaultdict(float)
 
     for node in graph.nodes():
         score[(node,node)] = 1.0
-    '''
-    for node1 in graph.nodes():
-        for node2 in graph.nodes():
-            if (node1==node2): 
-                score[(node1,node2)] = 1.0
-            else: 
-                score[(node1,node2)]=0.0
-    '''
-
-    print >>sys.stderr, "manager dict init"
 
     lDevelopers = []
     lFiles = []
@@ -101,47 +95,29 @@ if __name__ == '__main__':
     #print lFiles
 
     T = 20
-    print >>sys.stderr, 'ashish'
     print >>sys.stderr, "#Developers=%d, #Files=%d" % (len(lDevelopers), len(lFiles))
     hasConverged = False
     convergedAfterIteration = -1
 
-    pool=Pool(processes=numProcesses)
-
+    iteration = -1
     for iteration in range(T):
         print >>sys.stderr, iteration, 'beginning iteration'
+
         flag = True
-
-        temp=[]
-        for i in range(len(lDevelopers)):
-            for j in range(i+1,len(lDevelopers)):
-                temp.append((i,j,score,0))
-
-        flagList = pool.map(f,temp)
-        while cond in flagList:
-                if cond==False:
-                    flag = False
-                    break
-                    
-        def printScores(ns):
-            for i in range(len(ns)):
-                for j in range(i+1, len(ns)):
-                   print >>sys.stderr, "%s\t%s\t%f" % (ns[i],ns[j], score[(ns[i],ns[j])] + score[(ns[j],ns[i])])
-        print >>sys.stderr, iteration, 'after computing Developers'
+        for step, (name,lst) in enumerate([("Developers",lDevelopers), ("Files",lFiles)]):
+            print >>sys.stderr, iteration, 'creating pool for computing', name
+            pool = Pool(processes=numProcesses)
+            print >>sys.stderr, iteration, 'starting computation with pool for', name
+            result = pool.map(f, [(i,step) for i in range(len(lst))])
+            pool.close()
+            pool.join()
+            print >>sys.stderr, iteration, 'pool has computed, unzipping for', name
+            flags, newScores = zip(*result)
+            print >>sys.stderr, iteration, 'merging scores for', name
+            for d in newScores: score.update(d)
+            flag = all(flags) and flag
+            print >>sys.stderr, iteration, 'done merging', name
         
-        temp = []
-        for i in range(len(lFiles)):
-            for j in range(i+1,len(lFiles)):
-                temp.append((i,j,score,1))
-
-        flagList = pool.map(f,temp)
-        while cond in flagList:
-                if cond==False:
-                    flag = False
-                    break
-
-        print >>sys.stderr, iteration, 'after computing Files'
-                
         if(flag):
             hasConverged = True
             convergedAfterIteration = iteration

@@ -55,7 +55,9 @@ if [ -z "${SAGH_HOME:-}" ]; then
     unset CDPATH
     export SHLVL=0 SAGH_LOGLVL=${SAGH_LOGLVL:-1}
 
-    : ${SAGH_NUMCORES:=$(grep -c 'processor.*:' /proc/cpuinfo || echo 1)}
+    numcores=$(grep -c 'processor.*:' /proc/cpuinfo || echo 1)
+    [[ $numcores -le 2 ]] || let numcores-=2
+    : ${SAGH_NUMCORES:=$numcores}
     export SAGH_NUMCORES
 fi
 
