@@ -10,3 +10,5 @@ jquery                  $TOOLSDIR/
 jsonpath                $TOOLSDIR/
 
 sagh.py                 $TOOLSDIR/
+
+sagh-timed              $TOOLSDIR/
