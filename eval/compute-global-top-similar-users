@@ -50,18 +50,26 @@ topPairsFileName = sagh.suffixWithArgs("top-similar")
 
 filename = sys.argv[1]
 k = int(sys.argv[2]) # 5 #return top-k for each developer
-I = sys.argv[3:] # ['FordArnold','TomasCayuelas','astronaughts','MarkHarris'] #list of input developers
+Inames = sys.argv[3:] # ['FordArnold','TomasCayuelas','astronaughts','MarkHarris'] #list of input developers
     
 O = {}
 score = pickle.load(open(filename))
+namemap = pickle.load(open(filename + ".dict"))
+def nameFor(v): return namemap["inverse"][v]
+def idFor(n): return namemap["forward"][n]
 #print score
+
+I = map(idFor, Inames)
+#print >>sys.stderr, I
+
 data = defaultdict(list)
 #data['a'] = [('b',.5),('c',.2),('a',1)]
 #data['b'] = [('a',.4),('c',.3),('b',1)]
 #data['c'] = [('a',.5),('b',.2),('c',1)]
 
-for pair,score in score.iteritems():
-    data[pair[0]].append((pair[1],score))
+for (u,v),score in score.iteritems():
+    if u in I:
+        data[u].append((v,score))
 
 #print data
 
@@ -73,12 +81,11 @@ for d1 in I:
     for count in range(min(len(l)-1,k)):
         O[d1].append(l[count+1])
 
-print '-------------------------------------------'
-print 'Scores for', filename 
-print '-------------------------------------------'
-for o in O.keys():
-    for v in O[o]:
-        print o,':',v
-print '-------------------------------------------'
+#print '-------------------------------------------'
+#print 'Scores for', filename 
+#print '-------------------------------------------'
+for o,vs in O.iteritems():
+    print "%s:\t%s" % (nameFor(o), "\t".join(map(lambda (v,s): "%s=%f" % (nameFor(v),s), vs)))
+#print '-------------------------------------------'
 
 pickle.dump(O, open(topPairsFileName, 'w'))

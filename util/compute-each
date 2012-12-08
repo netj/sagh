@@ -20,3 +20,5 @@ out="$localProperty$suffix.txt"
 cmd="compute-each-$localProperty"
 msg -2 "Computing $localProperty$suffix${GITHUB_REPO:+ for $GITHUB_REPO}"
 run -o "$out"  "$cmd" "$@"
+# remove empty output, assuming $cmd created its own
+[ -s "$out" ] || rm -f "$out"

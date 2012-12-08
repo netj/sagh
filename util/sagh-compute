@@ -20,6 +20,16 @@ set -eu
 
 [ -n "${SAGH_ROOT:-}" ] || SAGH_ROOT=$(sagh-findroot)
 
+# process options, arguments
+showResult=false
+while getopts "o" o; do
+    case $o in
+        o)
+            showResult=true
+            ;;
+    esac
+done
+shift $(($OPTIND - 1))
 globalProperty=$1; shift
 
 # postfix output file with arguments
@@ -39,4 +49,5 @@ else
     run -o "$out"   "$cmd" "$@"
     # remove empty output, assuming $cmd created its own
     [ -s "$out" ] || rm -f "$out"
+    ! $showResult || ! [ -e "$out" ] || cat "$out"
 fi

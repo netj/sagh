@@ -22,3 +22,14 @@ for key,value in score.iteritems():
 print >>sys.stderr, "storing back to %s" % tableFileName
 os.rename(tableFileName, tableFileName+"~")
 pickle.dump(score2, open(tableFileName, 'w'))
+
+# dictionary
+dictionaryFileName = "%s.dict" % tableFileName
+print >>sys.stderr, "storing name mappings to %s" % dictionaryFileName
+forwardmap = {}
+for intid,name in graph.node_labels_inv.iteritems():
+    forwardmap[name] = intid
+pickle.dump({
+        "forward": forwardmap,
+        "inverse": graph.node_labels_inv
+    }, open(dictionaryFileName, 'w'))

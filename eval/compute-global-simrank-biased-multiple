@@ -11,6 +11,8 @@ if len(sys.argv) < 2:
 
 graphFileName = sagh.suffixWithArgs('user-file-graph', 1)
 tableFileName = sagh.suffixWithArgs('user-user-simrank', 1)
+dictionaryFileNameFormat = "%s.dict"
+dictionaryFileName = dictionaryFileNameFormat % tableFileName
 biasedTableFileNamePrefix = sagh.suffixWithArgs('user-user-simrank-biased', 1)
 
 #score1 = {}
@@ -32,7 +34,7 @@ for pstr in sys.argv[2:]:
     p = float(pstr)
     biasedScores[p] = {}
 
-print >>sys.stderr, "loading %s" % graphFileName
+print >>sys.stderr, "biasing simrank table"
 # bias the original scores
 for (u,v),s in score.iteritems():
     for p,biasedScore in biasedScores.iteritems():
@@ -64,4 +66,5 @@ for p,biasedScore in biasedScores.iteritems():
     biasedTableFileName = "%s-%f" % (biasedTableFileNamePrefix, p)
     print 'writing %s...' % biasedTableFileName
     pickle.dump(normalize(biasedScore), open(biasedTableFileName, 'w'))
+    os.symlink(dictionaryFileName, dictionaryFileNameFormat % biasedTableFileName)
 print >>sys.stderr, 'done'
