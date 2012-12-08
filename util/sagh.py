@@ -1,5 +1,6 @@
 import networkx as nx
 import os,sys
+import re
 
 currentRepo = None
 
@@ -26,7 +27,7 @@ def fileFor(attrName):
 def suffixWithArgs(basename='', upToNumArgs=len(sys.argv)-1):
     name = basename
     for i in range(1, min(upToNumArgs+1, len(sys.argv))):
-        name += '-' + sys.argv[i]
+        name += '-' + re.sub("[/]", "_", sys.argv[i])
     return name
 
 # normalizing a vector

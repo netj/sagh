@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+import networkx as nx
+import pickle
+import sys,os
+import sagh
+
+graphFileName = sagh.suffixWithArgs('user-file-graph', 1)
+tableFileName = sagh.suffixWithArgs('user-user-simrank', 1)
+
+print >>sys.stderr, "loading %s" % graphFileName
+graph = pickle.load(open(graphFileName))
+print >>sys.stderr, "loading %s" % tableFileName
+score = pickle.load(open(tableFileName))
+
+print >>sys.stderr, "filtering"
+score2 = {}
+for key,value in score.iteritems():
+    if value == 0: continue
+    if graph.node[key[0]]['type'] == 'File': continue
+    score2[key] = value
+
+print >>sys.stderr, "storing back to %s" % tableFileName
+os.rename(tableFileName, tableFileName+"~")
+pickle.dump(score2, open(tableFileName, 'w'))

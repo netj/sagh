@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+
+#assumes final score dictionary 'a' 'b' 5 and 'b' 'a' 4 (both directions specified)
+
+import pickle
+import operator
+import sys
+from collections import defaultdict
+import sagh
+
+'''
+d = {}
+d[('a','a')] = 1
+d[('a','b')] = 0.1
+d[('a','c')] = 0.4
+d[('a','d')] = 0.6
+d[('a','e')] = 0.2
+d[('b','a')] = 0.8
+d[('b','b')] = 1
+d[('b','c')] = 0.4
+d[('b','d')] = 0.3
+d[('b','e')] = 0.5
+d[('c','a')] = 0.5
+d[('c','b')] = 0.1
+d[('c','c')] = 1
+d[('c','d')] = 0.3
+d[('c','e')] = 0.4
+d[('d','a')] = 0.7
+d[('d','b')] = 0.1
+d[('d','c')] = 0.4
+d[('d','d')] = 1
+d[('d','e')] = 0.2
+d[('e','a')] = 0.2 
+d[('e','b')] = 0.1
+d[('e','c')] = 0.4
+d[('e','d')] = 0.3
+d[('e','e')] = 1
+file = open('log.txt','w')
+pickle.dump(d,file)
+sys.exit(0)
+'''
+###INPUTS
+
+if len(sys.argv) < 3:
+    print >>sys.stderr, "Usage: compute-global-top-similar-users SCORE_FILE TOP_K  USER..."
+    sys.exit(1)
+
+topPairsFileName = sagh.suffixWithArgs("top-similar")
+
+
+filename = sys.argv[1]
+k = int(sys.argv[2]) # 5 #return top-k for each developer
+I = sys.argv[3:] # ['FordArnold','TomasCayuelas','astronaughts','MarkHarris'] #list of input developers
+    
+O = {}
+score = pickle.load(open(filename))
+#print score
+data = defaultdict(list)
+#data['a'] = [('b',.5),('c',.2),('a',1)]
+#data['b'] = [('a',.4),('c',.3),('b',1)]
+#data['c'] = [('a',.5),('b',.2),('c',1)]
+
+for pair,score in score.iteritems():
+    data[pair[0]].append((pair[1],score))
+
+#print data
+
+
+for d1 in I:
+    l = data[d1]
+    l = sorted(l, key=operator.itemgetter(1), reverse = True)
+    O[d1] = []
+    for count in range(min(len(l)-1,k)):
+        O[d1].append(l[count+1])
+
+print '-------------------------------------------'
+print 'Scores for', filename 
+print '-------------------------------------------'
+for o in O.keys():
+    for v in O[o]:
+        print o,':',v
+print '-------------------------------------------'
+
+pickle.dump(O, open(topPairsFileName, 'w'))

@@ -55,7 +55,7 @@ def f((i,name)):
 if __name__ == '__main__':
     epsilon = 1e-4
     graphFileName = sagh.suffixWithArgs('user-file-graph', 1)
-    tableFileName = sagh.suffixWithArgs('user-user-simrank', 1)
+    tableFileName = sagh.suffixWithArgs('simrank', 1)
 
     # debugging
     #import multiprocessing, logging
@@ -122,6 +122,7 @@ if __name__ == '__main__':
 
         # dumping intermediate score table to disk
         print >>sys.stderr, "storing %s" % tableFileName
+        os.rename(tableFileName, tableFileName+"~")
         pickle.dump(score, open(tableFileName, 'w'))
 
     #for i in range(len(lFiles)):
@@ -133,11 +134,15 @@ if __name__ == '__main__':
 
     # store the compact version of simrank scores (of developers only)
     print >>sys.stderr, "storing %s" % tableFileName
+    os.rename(tableFileName, tableFileName+"~")
     pickle.dump(score, open(tableFileName, 'w'))
+    os.remove(tableFileName, tableFileName+"~")
 
     # output in textual form
+    userScore = {}
     for i,u in enumerate(lDevelopers):
         for v in lDevelopers[i+1:]:
             if (u,v) in score:
                 print graph.node_labels_inv[u], graph.node_labels_inv[v], score[(u,v)]
+    pickle.dump(userScore, open(userTableFileName, 'w'))
 
