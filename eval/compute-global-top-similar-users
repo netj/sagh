@@ -4,7 +4,7 @@
 
 import pickle
 import operator
-import sys,os
+import sys,os,random
 from collections import defaultdict
 import sagh
 
@@ -77,10 +77,14 @@ data = defaultdict(list)
 #data['b'] = [('a',.4),('c',.3),('b',1)]
 #data['c'] = [('a',.5),('b',.2),('c',1)]
 
+allIds = set()
 for (u,v),score in score.iteritems():
+    allIds.add(u)
+    allIds.add(v)
     if u in I:
         data[u].append((v,score))
 
+allIds = [u for u in allIds]
 #print data
 
 
@@ -90,6 +94,12 @@ for d1 in I:
     O[d1] = []
     for count in range(min(len(l)-1,k)):
         O[d1].append(l[count+1])
+    while len(O[d1]) < k:
+        d2 = random.choice(allIds)
+        if d2 in O[d1] or d1 == d2: continue
+        O[d1].append((d2,0))
+
+
 
 #print '-------------------------------------------'
 #print 'Scores for', filename 
