@@ -4,7 +4,6 @@ Input: Path to pickled DF-bipartite graph
 Output: Pickled Dictionary containing Similarity between P-P and D-D
 '''
 from multiprocessing import Pool, Process
-from collections import defaultdict
 import pickle
 import sys,os
 import math
@@ -13,45 +12,45 @@ import sagh
 numProcesses = int(os.environ['SAGH_NUMCORES']) if 'SAGH_NUMCORES' in os.environ else 4
 
 graph = None
-lDevelopers = None
-lFiles = None
+lDevelopers = []
+lFiles = []
+nodeLists = {
+        "Developers": lDevelopers,
+        "Files": lFiles,
+        }
+nodeListsOrder = ["Developers", "Files"]
 score = None
 
-def f((i,step)):
-
+def f((i,name)):
+    lst = nodeLists[name]
+    u = lst[i]
     newScores = {}
-
-    if step == 0:
-        lst = lDevelopers
-    else:
-        lst = lFiles
-
     hasConverged = True
-
-    for j in range(i+1,len(lst)):
+    for v in lst[i+1:]:
         c = 0.8
-        count1 = len(graph.neighbors(lst[i]))
-        count2 = len(graph.neighbors(lst[j])) 
+        neighbors_u = graph.neighbors(u)
+        neighbors_v = graph.neighbors(v)
+        count1 = len(neighbors_u)
+        count2 = len(neighbors_v) 
         if(count1==0 or count2==0): 
             continue
         
-        total = 0.0
-        for f1 in graph.neighbors(lst[i]):
-            for f2 in graph.neighbors(lst[j]):
-                total += score[(f1,f2)]
+        total = sum(score[(f1,f2)] if (f1,f2) in score else 0.0
+                for f1 in neighbors_u for f2 in neighbors_v)
         
+        oldScore = score[(u,v)] if (u,v) in score else 0.0
         newScore = float(c*total)/float(count1*count2)
 
-        if (math.fabs(score[(lst[i],lst[j])] - newScore) > epsilon):
-            newScores[(lst[i],lst[j])]=newScore
+        if (math.fabs(oldScore - newScore) > epsilon):
+            newScores[(u,v)]=newScore
             hasConverged = False
 
     return hasConverged, newScores
 
-def printScores(ns):
-    for i in range(len(ns)):
-        for j in range(i+1, len(ns)):
-           print >>sys.stderr, "%s\t%s\t%f" % (ns[i],ns[j], score[(ns[i],ns[j])] + score[(ns[j],ns[i])])
+#def printScores(ns):
+#    for i in range(len(ns)):
+#        for j in range(i+1, len(ns)):
+#           print >>sys.stderr, "%s\t%s\t%f" % (ns[i],ns[j], score[(ns[i],ns[j])] + score[(ns[j],ns[i])])
 
 if __name__ == '__main__':
     epsilon = 1e-4
@@ -76,13 +75,9 @@ if __name__ == '__main__':
     #sys.exit(0)
     print >>sys.stderr, "done loading"
 
-    score = defaultdict(float)
-
+    score = {}
     for node in graph.nodes():
         score[(node,node)] = 1.0
-
-    lDevelopers = []
-    lFiles = []
 
     for node in graph.nodes(data=True):
         if (node[1]['type']=='Developer'): lDevelopers.append(node[0])
@@ -104,11 +99,12 @@ if __name__ == '__main__':
         print >>sys.stderr, iteration, 'beginning iteration'
 
         flag = True
-        for step, (name,lst) in enumerate([("Developers",lDevelopers), ("Files",lFiles)]):
+        for name in nodeListsOrder:
+            lst = nodeLists[name]
             print >>sys.stderr, iteration, 'creating pool for computing', name
             pool = Pool(processes=numProcesses)
             print >>sys.stderr, iteration, 'starting computation with pool for', name
-            result = pool.map(f, [(i,step) for i in range(len(lst))])
+            result = pool.map(f, [(i,name) for i in range(len(lst))])
             pool.close()
             pool.join()
             print >>sys.stderr, iteration, 'pool has computed, unzipping for', name
@@ -140,7 +136,8 @@ if __name__ == '__main__':
     pickle.dump(score, open(tableFileName, 'w'))
 
     # output in textual form
-    for i in range(len(lDevelopers)):
-        for j in range(i+1, len(lDevelopers)):
-            print graph.node_labels_inv[lDevelopers[i]], graph.node_labels_inv[lDevelopers[j]], score[(lDevelopers[i],lDevelopers[j])]
+    for i,u in enumerate(lDevelopers):
+        for v in lDevelopers[i+1:]:
+            if (u,v) in score:
+                print graph.node_labels_inv[u], graph.node_labels_inv[v], score[(u,v)]
 
