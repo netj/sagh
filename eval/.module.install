@@ -3,3 +3,8 @@ compute-global-tmp-filter-simrank           $TOOLSDIR/
 compute-global-top-similar-users            $TOOLSDIR/
 
 compute-global-common-files                 $TOOLSDIR/
+
+compute-global-score-pairs                  $TOOLSDIR/
+
+sagh-evaluate                               $TOOLSDIR/
+plotComparisionGraph.py                     $TOOLSDIR/

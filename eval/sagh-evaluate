@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# sagh-evaluate -- compare many algorithms, etc.
+# Usage: sagh evaluate GRAPH TOP_K USERLISTFILE...
+#
+# Author: Jaeho Shin <netj@cs.stanford.edu>
+# Created: 2012-11-14
+set -eu
+shopt -s extglob
+
+[ $# -gt 2 ] || usage "$0" "GRAPH or USERLISTFILE missing"
+
+g=$1; shift # e.g., pruned-50
+k=$1; shift # e.g., 5
+
+[ -n "${SAGH_ROOT:-}" ] || SAGH_ROOT=$(sagh-findroot)
+
+cd "$SAGH_ROOT"
+cd computed
+
+for list; do
+    for algo in user-user-common-files user-user-simrank-biased-$g-!(*.dict); do
+        compute-global-top-similar-users $algo $k $list >/dev/null
+    done
+    compute-global-score-pairs  top-similar.$list.$k.*
+    msg "Run:"
+    msg "  sagh hack  plotComparisionGraph.py  $list scored.top-similar.$list.$k.*"
+done

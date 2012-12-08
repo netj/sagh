@@ -1,0 +1,100 @@
+#!/usr/bin/env python
+# Usage: compute-global-score-pairs METRIC_NAME PAIR...
+import pickle
+import operator
+import sys
+from collections import defaultdict
+import networkx as nx
+import matplotlib.pyplot as plt
+from math import sqrt
+
+graphFileName = 'user-file-graph-pruned-50' # XXX hardcoded
+userToLangsFileName = 'user-langs'
+filenamePrefix = 'scored.'
+
+
+# some aggregations
+aggregations = {
+        "average": (lambda vs: sum(vs) / float(len(vs)) if len(vs) > 0 else 0),
+        "sum": sum
+        }
+
+## some metrics
+graph = None
+def loadGraph():
+    global graph
+    if graph != None: return
+    graph = pickle.load(open(graphFileName))
+def distance(dev1,ldev):
+    loadGraph()
+    s=nx.single_source_shortest_path_length(graph,dev1)
+    dist_score = {}
+    for dev2 in ldev:
+        try:
+            dist_score[dev2]=s[dev2]
+        except:
+            dist_score[dev2] = None
+    return dist_score
+
+userToLangs = None
+def loadUserLangMap():
+    global userToLangs
+    if userToLangs != None: return
+    print >>sys.stderr, "loading %s" % userToLangsFileName
+    userToLangs = pickle.load(open(userToLangsFileName))
+magnitude = lambda vs: sqrt(sum(v*v for v in vs))
+def cosine_distance(u1, u2s):
+    loadUserLangMap()
+    loadGraph()
+    v1 = userToLangs[graph.node_labels_inv[u1]]
+    u1m = magnitude(v1.values())
+    dist = {}
+    for u2 in u2s:
+        v2 = userToLangs[graph.node_labels_inv[u2]]
+        numerator = sum((v1[i] if i in v1 else 0) * (v2[i] if i in v2 else 0)
+                for i in (set(v1.keys()) | set(v2.keys())))
+        dist[u2] = 1.0 - (0.0 if numerator == 0 else numerator / (u1m * magnitude(v2.values())))
+    return dist
+
+metricsByName = {
+        "distance": distance,
+        "cosine_distance": cosine_distance
+        }
+
+loadGraph()
+
+# parse command line args
+# collect the pairs we need to compute evaluation metric for
+pairsGrouped = defaultdict(set)
+pairsByFile = defaultdict(lambda: defaultdict(set))
+for filename in sys.argv[1:]:
+    pairs = pickle.load(open(filename))
+    for i,jss in pairs.iteritems():
+        # XXX decide if we need to encode using dictionary
+        if type(i) == str:
+            convert = lambda x: graph.node_labels[x]
+            i = convert(i)
+        else:
+            convert = lambda x: x
+        js = set(map(lambda (j,s): convert(j), jss))
+        pairsByFile[filename][i] |= js
+        pairsGrouped[i] |= js
+
+for metricName,metric in metricsByName.iteritems():
+    # compute each metric
+    print >>sys.stderr, "computing %s" % metricName
+    computedMetrics = {}
+    for i,js in pairsGrouped.iteritems():
+        computedMetrics[i] = metric(i,js)
+
+    # save it back to files
+    for filename,pairs in pairsByFile.iteritems():
+        outFilename = "%s%s-%s" % (filenamePrefix,filename,metricName)
+        print >>sys.stderr, "storing %s" % outFilename
+        result = {}
+        for aggName,agg in aggregations.iteritems():
+            result[aggName] = {}
+            for i,js in pairs.iteritems():
+                result[aggName][graph.node_labels_inv[i]] = agg([y for y in (computedMetrics[i][j] for j in js) if y])
+        pickle.dump(result, open(outFilename, "w"))
+

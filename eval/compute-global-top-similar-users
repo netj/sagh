@@ -45,12 +45,14 @@ if len(sys.argv) < 3:
     print >>sys.stderr, "Usage: compute-global-top-similar-users SCORE_FILE TOP_K  USER..."
     sys.exit(1)
 
-topPairsFileName = sagh.suffixWithArgs("top-similar")
-
 
 filename = sys.argv[1]
 k = int(sys.argv[2]) # 5 #return top-k for each developer
-Inames = sys.argv[3:] # ['FordArnold','TomasCayuelas','astronaughts','MarkHarris'] #list of input developers
+seedUsersFileName = sys.argv[3]
+Inames = [line.strip() for line in open(seedUsersFileName)] # ['FordArnold','TomasCayuelas','astronaughts','MarkHarris'] #list of input developers
+
+topPairsFileName = "top-similar.%s.%s.%s" % (seedUsersFileName, k, filename) #sagh.suffixWithArgs("top-similar")
+
     
 O = {}
 print >>sys.stderr, "loading %s" % filename
@@ -96,4 +98,5 @@ for o,vs in O.iteritems():
     print "%s:\t%s" % (nameFor(o), "\t".join(map(lambda (v,s): "%s=%f" % (nameFor(v),s), vs)))
 #print '-------------------------------------------'
 
+print >>sys.stderr, "storing %s" % topPairsFileName
 pickle.dump(O, open(topPairsFileName, 'w'))
