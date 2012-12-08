@@ -12,3 +12,4 @@ jsonpath                $TOOLSDIR/
 sagh.py                 $TOOLSDIR/
 
 sagh-timed              $TOOLSDIR/
+sagh-view               $TOOLSDIR/
