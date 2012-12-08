@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -eu
+
+for-each-repo compute-each contributors
+for-each-repo compute-each fetch-langs

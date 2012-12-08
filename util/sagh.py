@@ -29,3 +29,10 @@ def suffixWithArgs(basename='', upToNumArgs=len(sys.argv)-1):
         name += '-' + sys.argv[i]
     return name
 
+# normalizing a vector
+def normalize(d, by=sum):
+    base = float(by(d.values()))
+    nd = {}
+    for k,v in d.iteritems():
+        nd[k] = float(v)/base
+    return nd

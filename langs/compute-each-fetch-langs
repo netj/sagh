@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# compute-each-fetch-languages -- download the languages for each repo
+# Usage: sagh compute contributors
+#
+# Author: Jaeho Shin <netj@cs.stanford.edu>
+# Created: 2012-12-06
+set -eu
+githubapi /repos/$GITHUB_REPO/languages >languages.json

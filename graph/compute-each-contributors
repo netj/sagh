@@ -8,8 +8,8 @@ set -eu
 
 export LC_ALL=C
 
-git log --format=%ae |
+git log --format=%an |
 awk '
-        {hist[tolower($0)]++}
+    {gsub(" *", ""); hist[$0]++}
     END {for(i in hist){print i "\t" hist[i]}}
 '

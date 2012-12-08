@@ -1,0 +1,3 @@
+compute-each-fetch-langs            $TOOLSDIR/
+compute-global-user-langs           $TOOLSDIR/
+compute-global-user-langs.before    $TOOLSDIR/

@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+import sagh,sys
+import pickle
+import json
+from collections import defaultdict
+
+languagesFileName = 'languages.json'
+contributorsName = 'contributors.txt'
+userLanguagesMapFileName = 'user-langs'
+
+# user-langs mapping
+usersToLangs = defaultdict(lambda: defaultdict(float))
+
+# load submaps into a global map
+def loadEach(repo):
+    # load languages of this project
+    langs = sagh.normalize(json.load(open(sagh.fileFor(languagesFileName))))
+    print >>sys.stderr, langs
+    # load contributors
+    users = {}
+    for line in open(sagh.fileFor(contributorsName)):
+        nameScore = line.strip().split("\t", 2)
+        users[nameScore[0]] = int(nameScore[1])
+    usersNorm = sagh.normalize(users)
+    # aggregate up language bytes to the global table
+    for u,commitsFrac in usersNorm.iteritems():
+        for lang,langBytes in langs.iteritems():
+            usersToLangs[u][lang] += langBytes * commitsFrac
+sagh.for_each_repo(loadEach)
+
+# normalize each user's table
+usersToLangsNorm = {}
+for u,langs in usersToLangs.iteritems():
+    usersToLangsNorm[u] = sagh.normalize(langs)
+
+pickle.dump(usersToLangsNorm, open(userLanguagesMapFileName, "w"))
