@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+import networkx as nx
+from collections import defaultdict
+import sagh,sys
+import re
+import pickle
+
+ddScoreFileName = 'common-files.txt'
+globalScoreFileName = 'user-user-common-files'
+ddscore=defaultdict(int)
+
+# load subgraphs into a global graph
+def loadSubgraph(repo):
+    ddfile = open(sagh.fileFor(ddScoreFileName))
+    for line in ddfile.readlines():
+        [d1,d2,score] = line.split('\t')
+        s = int(score)
+        ddscore[(d1,d2)]+=s
+        ddscore[(d2,d1)]+=s
+    print >>sys.stderr, repo, " merged"
+    
+sagh.for_each_repo(loadSubgraph)
+pickle.dump(ddscore, open(globalScoreFileName, "w"))
