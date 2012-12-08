@@ -4,7 +4,7 @@
 
 import pickle
 import operator
-import sys
+import sys,os
 from collections import defaultdict
 import sagh
 
@@ -53,11 +53,19 @@ k = int(sys.argv[2]) # 5 #return top-k for each developer
 Inames = sys.argv[3:] # ['FordArnold','TomasCayuelas','astronaughts','MarkHarris'] #list of input developers
     
 O = {}
+print >>sys.stderr, "loading %s" % filename
 score = pickle.load(open(filename))
-namemap = pickle.load(open(filename + ".dict"))
-def nameFor(v): return namemap["inverse"][v]
-def idFor(n): return namemap["forward"][n]
-#print score
+
+# use dictionary if available
+dictFilename = filename + ".dict"
+if os.access(dictFilename, os.R_OK):
+    print >>sys.stderr, "using dictionary %s" % filename
+    namemap = pickle.load(open(dictFilename))
+    def nameFor(v): return namemap["inverse"][v]
+    def idFor(n): return namemap["forward"][n]
+else:
+    def nameFor(v): return v
+    def idFor(n): return n
 
 I = map(idFor, Inames)
 #print >>sys.stderr, I
