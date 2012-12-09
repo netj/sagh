@@ -17,6 +17,7 @@ for filename in sys.argv[2:]:
         metrics[(name,agg)] = data 
 
 #epsilon = 0.01
+#keys = map(lambda line: line.rstrip(), open("wellConnectedContributors-hideg"))[-50:]
 keys = [i for i in data.keys()] # if not all(map(lambda data: data[i] < epsilon, metrics.values()))]
 for i,k in enumerate(keys):
     print "%d\t%s" % (i, k)
@@ -28,9 +29,9 @@ try:
 except:
     baseline = metrics.values()[0]
 #del metrics[baselineKey]
-#for key,data in metrics.iteritems():
-#    for i in data.keys():
-#        data[i] = baseline[i] - data[i]
+for key,data in metrics.iteritems():
+    for i in data.keys():
+        data[i] = baseline[i] - data[i]
 
 keys = sorted(keys, key=lambda i: -sum(data[i] for data in metrics.values()))
 

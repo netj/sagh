@@ -15,12 +15,15 @@ usersToLangs = defaultdict(lambda: defaultdict(float))
 def loadEach(repo):
     # load languages of this project
     langs = sagh.normalize(json.load(open(sagh.fileFor(languagesFileName))))
-    print >>sys.stderr, langs
+    #print >>sys.stderr, langs
     # load contributors
     users = {}
     for line in open(sagh.fileFor(contributorsName)):
-        nameScore = line.strip().split("\t", 2)
-        users[nameScore[0]] = int(nameScore[1])
+        try:
+            nameScore = line.rstrip().split("\t", 2)
+            users[nameScore[0]] = int(nameScore[1])
+        except:
+            pass
     usersNorm = sagh.normalize(users)
     # aggregate up language bytes to the global table
     for u,commitsFrac in usersNorm.iteritems():
@@ -31,6 +34,8 @@ sagh.for_each_repo(loadEach)
 # normalize each user's table
 usersToLangsNorm = {}
 for u,langs in usersToLangs.iteritems():
+    langs[str(u)] = 0.000005 # XXX prior language distribution bias thing
+    #print >>sys.stderr, langs
     usersToLangsNorm[u] = sagh.normalize(langs)
 
 pickle.dump(usersToLangsNorm, open(userLanguagesMapFileName, "w"))

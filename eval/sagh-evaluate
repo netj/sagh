@@ -20,7 +20,8 @@ cd computed
 # compute top$k pairs for each list of users in parallel
 ls -d "$@" |
 xargs -P$SAGH_NUMCORES -L1 -I{} -- bash -c '
-    for algo in user-user-common-files user-user-simrank-biased-$g-!(*.dict); do
+    shopt -s extglob
+    for algo in user-user-common-files user-user-simrank-biased-'$g'-!(*.dict); do
         compute-global-top-similar-users $algo '$k' {} >/dev/null
     done
 '

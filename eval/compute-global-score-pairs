@@ -33,6 +33,7 @@ def distance(dev1,ldev):
         try:
             dist_score[dev2]=s[dev2]
         except:
+            print >>sys.stderr, "no distance found: %d" % dev2
             dist_score[dev2] = None
     return dist_score
 
@@ -51,6 +52,11 @@ def cosine_distance(u1, u2s):
         v1 = userToLangs[graph.node_labels_inv[u1]]
     except:
         v1 = emptyLang
+        try:
+            username = graph.node_labels_inv[u1]
+            print >>sys.stderr, "no language found: %s" % username
+        except:
+            print >>sys.stderr, "no language found: %d" % u1
     u1keys = set(v1.keys())
     u1m = magnitude(v1.values())
     dist = {}
@@ -59,6 +65,11 @@ def cosine_distance(u1, u2s):
             v2 = userToLangs[graph.node_labels_inv[u2]]
         except:
             v2 = emptyLang
+            try:
+                username = graph.node_labels_inv[u2]
+                print >>sys.stderr, "no language found: %s" % username
+            except:
+                print >>sys.stderr, "no language found: %d" % u2
         u1u2keys = u1keys | set(v2.keys())
         if len(u1u2keys) > 0:
             numerator = sum((v1[i] if i in v1 else 0) * (v2[i] if i in v2 else 0)
@@ -69,8 +80,8 @@ def cosine_distance(u1, u2s):
     return dist
 
 metricsByName = {
+        "cosine_distance": cosine_distance,
         "distance": distance,
-        "cosine_distance": cosine_distance
         }
 
 loadGraph()
