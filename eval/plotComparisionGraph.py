@@ -9,8 +9,8 @@ metrics = {}
 
 title = sys.argv[1]
 for filename in sys.argv[2:]:
-    name = filename.replace("scored.top-similar."+title+".", "").replace("user-user-", "")
-    name = re.sub("^\\d+.", "", name)
+    name = filename #.replace("scored.top-similar.", "").replace("user-user-", "")
+    name = re.sub("^.*\\.user-user-(.+-(cosine_distance|distance))", "\\1", name)
     m = pickle.load(open(filename))
     for agg,data in m.iteritems():
         if agg != "average": continue # XXX only average
@@ -22,19 +22,22 @@ for i,k in enumerate(keys):
     print "%d\t%s" % (i, k)
 
 # plotting difference to the baseline
-baselineKey = ("common-files-cosine_distance","average")
-baseline = metrics[baselineKey]
+baselineKey = filter(lambda (name,agg): "common-files" in name, metrics.keys())[0]
+try:
+    baseline = metrics[baselineKey]
+except:
+    baseline = metrics.values()[0]
 #del metrics[baselineKey]
-for key,data in metrics.iteritems():
-    for i in data.keys():
-        data[i] = baseline[i] - data[i]
+#for key,data in metrics.iteritems():
+#    for i in data.keys():
+#        data[i] = baseline[i] - data[i]
 
-keys = sorted(keys, key=lambda i: +sum(data[i] for data in metrics.values()))
+keys = sorted(keys, key=lambda i: -sum(data[i] for data in metrics.values()))
 
 #sortingColumn = sorted(metrics.keys())[0]
 #keys = sorted(keys, key=lambda i: -sum(data[i] for data in [metrics[sortingColumn]]))
 
-plt.figure(figsize=(8.0, 5.0))
+fig = plt.figure()
 labels = []
 for key in sorted(metrics.keys()):
     (name,agg) = key
@@ -50,10 +53,10 @@ for key in sorted(metrics.keys()):
 plt.axhline(0, color='k', linewidth=1)
 plt.xlabel('user')
 plt.ylabel('Value of Metric')
-plt.legend(labels)
+plt.legend(labels, prop={"size":6})
 plt.title(title)
-plt.gcf().set_size_inches(8, 6)
+fig.set_size_inches(8, 6)
 #plt.legend(('Cosine Similarity','Average Distance'))
-plt.savefig(title + ".pdf", dpi=120)
-plt.show()
+fig.savefig(title + ".pdf", dpi=120)
+#plt.show()
 plt.close()

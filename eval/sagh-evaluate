@@ -7,7 +7,7 @@
 set -eu
 shopt -s extglob
 
-[ $# -gt 2 ] || usage "$0" "GRAPH or USERLISTFILE missing"
+[ $# -gt 2 ] || usage "$0" "GRAPH, TOP_K or USERLISTFILE missing"
 
 g=$1; shift # e.g., pruned-50
 k=$1; shift # e.g., 5
@@ -17,11 +17,19 @@ k=$1; shift # e.g., 5
 cd "$SAGH_ROOT"
 cd computed
 
-for list; do
+# compute top$k pairs for each list of users in parallel
+ls -d "$@" |
+xargs -P$SAGH_NUMCORES -L1 -I{} -- bash -c '
     for algo in user-user-common-files user-user-simrank-biased-$g-!(*.dict); do
-        compute-global-top-similar-users $algo $k $list >/dev/null
+        compute-global-top-similar-users $algo '$k' {} >/dev/null
     done
-    compute-global-score-pairs  top-similar.$list.$k.*
-    msg "Run:"
-    msg "  sagh hack  plotComparisionGraph.py  $list scored.top-similar.$list.$k.*"
-done
+'
+
+# score the top$k pairs
+args=(); for list; do args+=(top-similar.$list.$k.*); done
+set -- "${args[@]}"
+compute-global-score-pairs  "$@"
+
+# and show how to plot them
+msg "Run:"
+msg "  sagh hack  plotComparisionGraph.py  $list scored.top-similar.$list.$k.*"

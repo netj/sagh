@@ -80,6 +80,7 @@ loadGraph()
 pairsGrouped = defaultdict(set)
 pairsByFile = defaultdict(lambda: defaultdict(set))
 for filename in sys.argv[1:]:
+    print >>sys.stderr, "loading %s" % filename
     pairs = pickle.load(open(filename))
     for i,jss in pairs.iteritems():
         # XXX decide if we need to encode using dictionary
@@ -97,7 +98,10 @@ for metricName,metric in metricsByName.iteritems():
     print >>sys.stderr, "computing %s" % metricName
     computedMetrics = {}
     for i,js in pairsGrouped.iteritems():
-        computedMetrics[i] = metric(i,js)
+        try:
+            computedMetrics[i] = metric(i,js)
+        except:
+            pass
 
     # save it back to files
     for filename,pairs in pairsByFile.iteritems():
@@ -107,6 +111,7 @@ for metricName,metric in metricsByName.iteritems():
         for aggName,agg in aggregations.iteritems():
             result[aggName] = {}
             for i,js in pairs.iteritems():
+                if i not in computedMetrics: continue
                 result[aggName][graph.node_labels_inv[i]] = agg([y for y in (computedMetrics[i][j] for j in js) if y])
         pickle.dump(result, open(outFilename, "w"))
 
