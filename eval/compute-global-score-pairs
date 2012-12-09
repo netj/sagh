@@ -37,23 +37,35 @@ def distance(dev1,ldev):
     return dist_score
 
 userToLangs = None
+emptyLang = {}
 def loadUserLangMap():
     global userToLangs
     if userToLangs != None: return
     print >>sys.stderr, "loading %s" % userToLangsFileName
     userToLangs = pickle.load(open(userToLangsFileName))
-magnitude = lambda vs: sqrt(sum(v*v for v in vs))
+magnitude = lambda vs: sqrt(sum(v*v for v in vs)) if len(vs) > 0 else 0.0
 def cosine_distance(u1, u2s):
     loadUserLangMap()
     loadGraph()
-    v1 = userToLangs[graph.node_labels_inv[u1]]
+    try:
+        v1 = userToLangs[graph.node_labels_inv[u1]]
+    except:
+        v1 = emptyLang
+    u1keys = set(v1.keys())
     u1m = magnitude(v1.values())
     dist = {}
     for u2 in u2s:
-        v2 = userToLangs[graph.node_labels_inv[u2]]
-        numerator = sum((v1[i] if i in v1 else 0) * (v2[i] if i in v2 else 0)
-                for i in (set(v1.keys()) | set(v2.keys())))
-        dist[u2] = 1.0 - (0.0 if numerator == 0 else numerator / (u1m * magnitude(v2.values())))
+        try:
+            v2 = userToLangs[graph.node_labels_inv[u2]]
+        except:
+            v2 = emptyLang
+        u1u2keys = u1keys | set(v2.keys())
+        if len(u1u2keys) > 0:
+            numerator = sum((v1[i] if i in v1 else 0) * (v2[i] if i in v2 else 0)
+                    for i in u1u2keys)
+            dist[u2] = 1.0 - (0.0 if numerator == 0 else numerator / (u1m * magnitude(v2.values())))
+        else:
+            dist[u2] = 1.0
     return dist
 
 metricsByName = {
