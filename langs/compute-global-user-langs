@@ -34,7 +34,7 @@ sagh.for_each_repo(loadEach)
 # normalize each user's table
 usersToLangsNorm = {}
 for u,langs in usersToLangs.iteritems():
-    langs[str(u)] = 0.000005 # XXX prior language distribution bias thing
+#    langs[str(u)] = 0.000005 # XXX prior language distribution bias thing
     #print >>sys.stderr, langs
     usersToLangsNorm[u] = sagh.normalize(langs)
 
