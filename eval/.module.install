@@ -4,7 +4,11 @@ compute-global-top-similar-users            $TOOLSDIR/
 
 compute-global-common-files                 $TOOLSDIR/
 
+compute-global-lang-cos-sim                 $TOOLSDIR/
+
 compute-global-score-pairs                  $TOOLSDIR/
 
 sagh-evaluate                               $TOOLSDIR/
 plotComparisionGraph.py                     $TOOLSDIR/
+
+compute-global-lang-stats                   $TOOLSDIR/

@@ -33,7 +33,9 @@ for key,data in metrics.iteritems():
     for i in data.keys():
         data[i] = baseline[i] - data[i]
 
-keys = sorted(keys, key=lambda i: -sum(data[i] for data in metrics.values()))
+sortingkey = lambda xs: -sum(xs) # (+max(xs)) #, max(abs(x) for x in xs), -sum(xs))
+keys = sorted(keys, key=lambda i: sortingkey([data[i] for data in metrics.values()]))
+#keys = sorted(keys)
 
 #sortingColumn = sorted(metrics.keys())[0]
 #keys = sorted(keys, key=lambda i: -sum(data[i] for data in [metrics[sortingColumn]]))

@@ -1,0 +1,101 @@
+#!/usr/bin/env python
+import sagh,sys
+import pickle
+import json
+from collections import defaultdict
+import matplotlib.pyplot as plt
+
+languagesFileName = 'languages.json'
+contributorsName = 'contributors.txt'
+
+langToProject = defaultdict(int)
+langToUsers = defaultdict(int)
+numLangToProject = defaultdict(int)
+numLangToUsers = defaultdict(int)
+
+# load submaps into a global map
+def loadEach(repo):
+    # load languages of this project
+    langs = sagh.normalize(json.load(open(sagh.fileFor(languagesFileName))))
+    
+    # load contributors
+    users = {}
+    for line in open(sagh.fileFor(contributorsName)):
+        try:
+            nameScore = line.rstrip().split("\t", 2)
+            users[nameScore[0]] = int(nameScore[1])
+        except:
+            pass
+
+    for lang in langs.keys():
+        langToProject[lang] += 1
+
+    for lang in langs.keys():
+        langToUsers[lang] += len(users.keys())
+
+    numLangToProject[len(langs.keys())] += 1
+    numLangToUsers[len(langs.keys())] += len(users.keys())
+
+sagh.for_each_repo(loadEach)
+
+# TODO: languageFile might be empty
+if 0 in numLangToProject.keys():
+    del numLangToProject[0]
+    del numLangToUsers[0]
+
+# get top k languages, and splice other between them
+k = 10 #len(sortedLangV) / 5
+m = 4
+sortedLangV = sorted(langToProject.keys(), key=lambda l: -langToUsers[l])
+topLangs = sortedLangV[0:k]
+languages = []
+j = 0
+for i,l in enumerate(sortedLangV[k:]):
+    if j < k and i % (m-1) == 0:
+        languages.append(topLangs[j])
+        j += 1
+    languages.append(l)
+
+langV= []
+projectV= []
+usersV = []
+for lang in languages:
+    langV.append(lang)
+    projectV.append(langToProject[lang])
+    usersV.append(langToUsers[lang])
+
+
+x = range(len(langV))
+ax1 = plt.subplot(111)
+ax1.plot(x, projectV, 'o-b')
+ax1.set_xlabel('Languages')
+ax1.set_ylabel('Projects')
+ax2 = ax1.twinx()
+ax2.plot(x, usersV, '^-r')
+ax2.set_ylabel("Users")
+#ax2.legend(["Projects", "Users"])
+plt.xticks(x,[l if i % m == 0 else "" for i,l in enumerate(langV)])
+plt.title('Language Analysis of GitHub')
+plt.savefig('stats-projects+users-perlang.pdf')
+plt.show()
+plt.close()
+
+langV= []
+projectV= []
+usersV = []
+for lang in numLangToProject.keys():
+    langV.append(lang)
+    projectV.append(numLangToProject[lang])
+    usersV.append(numLangToUsers[lang])
+
+ax1 = plt.subplot(111)
+ax1.set_xlabel('Number of Languages')
+ax1.set_ylabel('Projects')
+ax1.plot(langV, projectV, 'o-b')
+ax2 = ax1.twinx()
+ax2.plot(langV, usersV, '^-r')
+ax2.set_ylabel("Users")
+plt.title('Language Analysis of GitHub')
+plt.savefig('stats-projects+users-pernumlang.pdf')
+plt.show()
+plt.close()
